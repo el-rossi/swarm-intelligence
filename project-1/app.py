@@ -184,6 +184,6 @@ page = SolaraViz(
     renderer,
     components=[],
     model_params=model_params,
-    name="ACO Swarm – Survival Simulation"
+    name="ACO Swarm - Survival Simulation"
 )
 page

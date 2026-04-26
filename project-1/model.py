@@ -34,7 +34,6 @@ class SwarmModel(Model):
         outward_weight: float       = 0.1
     ):
         super().__init__()
-
         self.energy_max            = energy_max
         self.temperature_safe      = temperature_safe
         self.temperature_critical  = temperature_critical
