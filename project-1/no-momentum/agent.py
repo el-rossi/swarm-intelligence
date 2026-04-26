@@ -37,20 +37,25 @@ class CreatureAgent(CellAgent):
                 return ca
         return None
 
-    def _move_toward_nest(self):
+    def _move_toward_nest(self, deposit_pheromone: bool = False):
         nx, ny = self.model.nest_location
+        deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
         for _ in range(self.model.max_speed):
-            if self._is_at_nest():
-                break
+            if deposit_pheromone:
+                ca = self._get_cell_agent(self.cell)
+                if ca:
+                    ca.pheromone += deposit
             neighbors = list(self.cell.get_neighborhood(radius=1, include_center=False))
             best_cell = min(
                 neighbors,
                 key=lambda c: abs(c.coordinate[0] - nx) + abs(c.coordinate[1] - ny),
-                default=None,
+                default=None
             )
             if best_cell is None:
                 break
             self.cell = best_cell
+            if self._is_at_nest():
+                break
 
     def _move_foraging(self):
         for _ in range(self.model.max_speed):
@@ -116,12 +121,7 @@ class CreatureAgent(CellAgent):
         if self._is_at_nest():
             self.state = RESTING
         else:
-            if self.state == RETURNING_LOADED:
-                deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
-                ca = self._get_cell_agent(self.cell)
-                if ca:
-                    ca.pheromone += deposit
-            self._move_toward_nest()
+            self._move_toward_nest(deposit_pheromone=(self.state == RETURNING_LOADED))
 
     def step(self):
         if not self.alive:

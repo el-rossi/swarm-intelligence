@@ -8,7 +8,7 @@ from cell_agent import cell_agent
 STATE_COLORS = {
     RESTING:          "lightskyblue",
     FORAGING:         "darkslateblue",
-    RETURNING_EMPTY:  "slateblue",
+    RETURNING_EMPTY:  "slategrey",
     RETURNING_LOADED: "gold"
 }
 
@@ -171,6 +171,6 @@ page = SolaraViz(
     renderer,
     components=[],
     model_params=model_params,
-    name="ACO Swarm - Survival Simulation",
+    name="ACO Swarm - Survival Simulation"
 )
 page
