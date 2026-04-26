@@ -117,9 +117,7 @@ class CreatureAgent(CellAgent):
             self.state = RESTING
         else:
             if self.state == RETURNING_LOADED:
-                # Deposit pheromone on nest-adjacent cells proportional to richness
                 deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
-                #for c in self.cell.get_neighborhood(radius=1, include_center=True):
                 ca = self._get_cell_agent(self.cell)
                 if ca:
                     ca.pheromone += deposit

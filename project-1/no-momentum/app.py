@@ -5,7 +5,6 @@ from model import SwarmModel
 from agent import CreatureAgent, RESTING, FORAGING, RETURNING_LOADED, RETURNING_EMPTY
 from cell_agent import cell_agent
 
-# Creature state colors
 STATE_COLORS = {
     RESTING:          "lightskyblue",
     FORAGING:         "darkslateblue",

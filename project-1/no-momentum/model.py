@@ -5,6 +5,7 @@ from agent import CreatureAgent
 from cell_agent import cell_agent
 
 class SwarmModel(Model):
+
     def __init__(
         self,
         width: int                  = 60,
