@@ -12,3 +12,5 @@ class cell_agent(FixedAgent):
 
     def step(self):
         self.pheromone = max(0.0, self.pheromone * (1.0 - self.model.evaporation_rate))
+
+    #test git account
