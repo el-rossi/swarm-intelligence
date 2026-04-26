@@ -1,7 +1,8 @@
 import numpy as np
 from mesa import Model
 from mesa.discrete_space import OrthogonalMooreGrid
-from agent import CreatureAgent
+from mesa.datacollection import DataCollector
+from agent import CreatureAgent, RESTING, FORAGING, RETURNING_LOADED, RETURNING_EMPTY
 from cell_agent import cell_agent
 
 class SwarmModel(Model):
@@ -51,9 +52,22 @@ class SwarmModel(Model):
         self.momentum_weight       = momentum_weight
         self.outward_weight        = outward_weight
         self.cluster_spread        = cluster_spread
-
+        
         self.grid = OrthogonalMooreGrid([width, height], torus=False, capacity=num_creatures+1)
         self.nest_location = (width // 2, height // 2)
+        self.food_collected: float = 0.0
+
+        self.datacollector = DataCollector(
+            model_reporters={
+                "Food Collected":   lambda m: m.food_collected,
+                "Food Remaining":   lambda m: m.food_remaining,
+                "Total Energy":     lambda m: sum(a.energy for a in m.agents_by_type[CreatureAgent] if a.alive),
+                "Resting":          lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
+                "Foraging":         lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == FORAGING),
+                "Returning Loaded": lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_LOADED),
+                "Returning Empty":  lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_EMPTY)
+            }
+        )
 
         for cell in self.grid:
             ca = cell_agent(self, len(self.agents), cell)
@@ -94,9 +108,14 @@ class SwarmModel(Model):
                 return obj
         return None
 
+    @property
+    def food_remaining(self):
+        return sum(ca.food for ca in self.agents_by_type[cell_agent])
+
     def step(self):
         self.agents_by_type[cell_agent].do("step")
         self.agents_by_type[CreatureAgent].shuffle().do("step")
         alive_agents = self.agents_by_type[CreatureAgent]
         if len(alive_agents) == 0 or not any(a.alive for a in alive_agents):
             self.running = False
+        self.datacollector.collect(self)

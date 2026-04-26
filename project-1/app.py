@@ -179,10 +179,20 @@ renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
 
+FoodPlot    = make_plot_component({"Food Remaining": "green", "Food Collected": "gold"})
+EnergyPlot  = make_plot_component({"Total Energy": "royalblue"})
+StatePlot   = make_plot_component({
+    "Resting":          "lightskyblue",
+    "Foraging":         "darkslateblue",
+    "Returning Loaded": "gold",
+    "Returning Empty":  "mediumpurple"
+})
+
+# TODO fix overlap between grid and state plot
 page = SolaraViz(
     model,
     renderer,
-    components=[],
+    components=[FoodPlot, StatePlot, EnergyPlot],
     model_params=model_params,
     name="ACO Swarm - Survival Simulation"
 )
