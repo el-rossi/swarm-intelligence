@@ -5,32 +5,33 @@ from agent import CreatureAgent
 from cell_agent import cell_agent
 
 class SwarmModel(Model):
+
     def __init__(
         self,
-        # environment
-        width: int        = 60,
-        height: int       = 60,
-        num_creatures: int = 50,
-        num_food_clusters: int = 12,
-        cluster_spread: float = 1.5,
-        # creatures
-        energy_max: float            = 200.0,
-        temperature_safe: float      = 20.0,
-        temperature_critical: float  = 100.0,
-        heat_rate: float             = 0.8,
-        cool_rate: float             = 1.5,
-        base_energy_drain: float     = 0.3,
-        move_energy_cost: float      = 0.2,
-        #rest_energy_recovery: float  = 1.0,
-        min_energy_to_forage: float  = 40.0,
-        abort_heat_ratio: float      = 0.75,
-        max_speed: int               = 3,
-        # aco
-        pheromone_deposit: float  = 10.0,
-        evaporation_rate: float   = 0.05,
-        exploration_weight: float = 1.0,
-        momentum_weight: float = 2.0,
-        outward_weight: float = 0.1
+        # Environment
+        width: int                  = 60,
+        height: int                 = 60,
+        num_creatures: int          = 50,
+        num_food_clusters: int      = 12,
+        cluster_spread: float       = 1.5,
+        # Creatures
+        energy_max: float           = 200.0,
+        temperature_safe: float     = 20.0,
+        temperature_critical: float = 100.0,
+        heat_rate: float            = 0.8,
+        cool_rate: float            = 1.5,
+        base_energy_drain: float    = 0.3,
+        move_energy_cost: float     = 0.2,
+        # rest_energy_recovery: float  = 1.0,   # enable for energy regeneration
+        min_energy_to_forage: float = 40.0,
+        abort_heat_ratio: float     = 0.75,
+        max_speed: int              = 3,
+        # ACO
+        pheromone_deposit: float    = 10.0,
+        evaporation_rate: float     = 0.05,
+        exploration_weight: float   = 1.0,
+        momentum_weight: float      = 2.0,
+        outward_weight: float       = 0.1
     ):
         super().__init__()
 
@@ -41,7 +42,7 @@ class SwarmModel(Model):
         self.cool_rate             = cool_rate
         self.base_energy_drain     = base_energy_drain
         self.move_energy_cost      = move_energy_cost
-        #self.rest_energy_recovery  = rest_energy_recovery
+        # self.rest_energy_recovery  = rest_energy_recovery     # enable for energy regeneration
         self.min_energy_to_forage  = min_energy_to_forage
         self.abort_heat_ratio      = abort_heat_ratio
         self.max_speed             = max_speed
@@ -72,7 +73,7 @@ class SwarmModel(Model):
             attempts += 1
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
-            # Keep clusters away from the nest
+            # Keep clusters away from the nest      # TODO param?
             if abs(cx - nest_cx) < 6 and abs(cy - nest_cy) < 6:
                 continue
             for _ in range(cells_per_cluster):
@@ -88,7 +89,7 @@ class SwarmModel(Model):
             creature = CreatureAgent(self, len(self.agents), nest_cell)
             self.agents.add(creature)
 
-    def _get_cell_agent(self, cell) -> "cell_agent | None":
+    def _get_cell_agent(self, cell) -> cell_agent | None:
         for obj in cell.agents:
             if isinstance(obj, cell_agent):
                 return obj
