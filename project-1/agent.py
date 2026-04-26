@@ -52,7 +52,7 @@ class CreatureAgent(CellAgent):
             best_cell = min(
                 neighbors,
                 key=lambda c: abs(c.coordinate[0] - nx) + abs(c.coordinate[1] - ny),
-                default=None,
+                default=None
             )
             if best_cell is None:
                 break
@@ -96,7 +96,6 @@ class CreatureAgent(CellAgent):
             self.cell = chosen
 
     def _check_death(self) -> bool:
-        """Return True and remove agent if death conditions are met."""
         if self.energy <= 0 or self.temperature >= self.model.temperature_critical:
             self.alive = False
             self.remove()
@@ -130,16 +129,13 @@ class CreatureAgent(CellAgent):
         if (self.temperature >= self.model.temperature_critical * self.model.abort_heat_ratio or self.energy <= self.model.min_energy_to_forage):
             self.state = RETURNING_EMPTY
             return
-
         self._move_foraging()
 
     def _step_returning(self):
         self.temperature += self.model.heat_rate
         self.energy -= self.model.base_energy_drain + self.model.move_energy_cost
-
         if self._check_death():
             return
-
         if self._is_at_nest():
             self.state = RESTING
         else:

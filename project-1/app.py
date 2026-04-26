@@ -8,7 +8,7 @@ from cell_agent import cell_agent
 STATE_COLORS = {
     RESTING:          "lightskyblue",
     FORAGING:         "darkslateblue",
-    RETURNING_EMPTY:  "slateblue",
+    RETURNING_EMPTY:  "mediumpurple",
     RETURNING_LOADED: "gold"
 }
 
