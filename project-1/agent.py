@@ -28,11 +28,7 @@ class CreatureAgent(CellAgent):
                 return obj
         return None
 
-    def _is_at_nest(self) -> bool:
-        ca = self._get_cell_agent(self.cell)
-        return ca is not None and ca.is_nest
-
-    def _sense_food_nearby(self) -> cell_agent | None:
+    def _get_food_nearby(self) -> cell_agent | None:
         local = self.cell.get_neighborhood(radius=1, include_center=True)
         for c in local:
             ca = self._get_cell_agent(c)
@@ -40,7 +36,7 @@ class CreatureAgent(CellAgent):
                 return ca
         return None
 
-    def _move_toward_nest(self, deposit_pheromone: bool = False):
+    def _move_returning(self, deposit_pheromone: bool = False):
         nx, ny = self.model.nest_location
         deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
         for _ in range(self.model.speed_max):
@@ -95,7 +91,11 @@ class CreatureAgent(CellAgent):
             self.heading = (chosen.coordinate[0] - cx, chosen.coordinate[1] - cy)
             self.cell = chosen
 
-    def _check_death(self) -> bool:
+    def _is_at_nest(self) -> bool:
+        ca = self._get_cell_agent(self.cell)
+        return ca is not None and ca.is_nest
+
+    def _is_dead(self) -> bool:
         if self.energy <= 0 or self.temperature >= self.model.temperature_critical:
             self.alive = False
             self.model.update_death_count()
@@ -103,12 +103,9 @@ class CreatureAgent(CellAgent):
         return False
 
     def _step_resting(self):
-        self.temperature = max(
-            self.model.temperature_safe,
-            self.temperature - self.model.cool_rate,
-        )
+        self.temperature = max(self.model.temperature_safe, self.temperature - self.model.cool_rate)
         self.energy -= self.model.energy_drain_base
-        if self._check_death():
+        if self._is_dead():
             return
         if (self.temperature <= self.model.temperature_safe and self.energy >= self.model.energy_forage_min):
             self.state = FORAGING
@@ -116,9 +113,9 @@ class CreatureAgent(CellAgent):
     def _step_foraging(self):
         self.temperature += self.model.heat_rate
         self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
-        if self._check_death():
+        if self._is_dead():
             return
-        food_ca = self._sense_food_nearby()
+        food_ca = self._get_food_nearby()
         if food_ca is not None:
             food_ca.food = max(0.0, food_ca.food - 1.0)
             self.model.food_collected += 1.0
@@ -133,12 +130,12 @@ class CreatureAgent(CellAgent):
     def _step_returning(self):
         self.temperature += self.model.heat_rate
         self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
-        if self._check_death():
+        if self._is_dead():
             return
         if self._is_at_nest():
             self.state = RESTING
         else:
-            self._move_toward_nest(deposit_pheromone=(self.state == RETURNING_LOADED))
+            self._move_returning(deposit_pheromone=(self.state == RETURNING_LOADED))
 
     def step(self):
         if not self.alive:

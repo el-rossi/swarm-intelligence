@@ -45,7 +45,7 @@ pip install solara
 From inside the `swarm-intelligence` folder:
 
 ### 1. Activate the virtual environment (if not already active)
-See [3. Activate the virtual environment](#3-activate-the-virtual-environment).
+See [Activate the virtual environment](#3-activate-the-virtual-environment).
 
 ### 2. Run the app
 ```sh
