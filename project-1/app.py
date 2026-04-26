@@ -89,6 +89,14 @@ model_params = {
         "max":      5.0,
         "step":     0.5
     },
+    "min_food_distance": {
+        "type":     "SliderInt",
+        "value":    6,
+        "label":    "Food distance",
+        "min":      1,
+        "max":      10,
+        "step":     1
+    },
     "evaporation_rate": {
         "type":     "SliderFloat",
         "value":    0.05,
@@ -179,8 +187,10 @@ renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
 
-FoodPlot    = make_plot_component({"Food Remaining": "green", "Food Collected": "gold"})
-EnergyPlot  = make_plot_component({"Total Energy": "royalblue"})
+# RemainingFoodPlot    = make_plot_component({"Food Remaining": "green"})
+CollectedFoodPlot    = make_plot_component({"Food Collected": "gold"})
+AliveDeadPlot  = make_plot_component({"Alive Creatures": "green", "Dead Creatures": "red"})
+EnergyPlot     = make_plot_component({"Total Energy": "royalblue"})
 StatePlot   = make_plot_component({
     "Resting":          "lightskyblue",
     "Foraging":         "darkslateblue",
@@ -192,7 +202,7 @@ StatePlot   = make_plot_component({
 page = SolaraViz(
     model,
     renderer,
-    components=[FoodPlot, StatePlot, EnergyPlot],
+    components=[EnergyPlot, StatePlot, CollectedFoodPlot, AliveDeadPlot],
     model_params=model_params,
     name="ACO Swarm - Survival Simulation"
 )

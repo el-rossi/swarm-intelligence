@@ -15,6 +15,7 @@ class SwarmModel(Model):
         num_creatures: int          = 50,
         num_food_clusters: int      = 12,
         cluster_spread: float       = 1.5,
+        min_food_distance: int      = 6,
         # Creatures
         energy_max: float           = 200.0,
         temperature_safe: float     = 20.0,
@@ -23,7 +24,6 @@ class SwarmModel(Model):
         cool_rate: float            = 1.5,
         base_energy_drain: float    = 0.3,
         move_energy_cost: float     = 0.2,
-        # rest_energy_recovery: float  = 1.0,   # enable for energy regeneration
         min_energy_to_forage: float = 40.0,
         abort_heat_ratio: float     = 0.75,
         max_speed: int              = 3,
@@ -42,7 +42,6 @@ class SwarmModel(Model):
         self.cool_rate             = cool_rate
         self.base_energy_drain     = base_energy_drain
         self.move_energy_cost      = move_energy_cost
-        # self.rest_energy_recovery  = rest_energy_recovery     # enable for energy regeneration
         self.min_energy_to_forage  = min_energy_to_forage
         self.abort_heat_ratio      = abort_heat_ratio
         self.max_speed             = max_speed
@@ -52,16 +51,20 @@ class SwarmModel(Model):
         self.momentum_weight       = momentum_weight
         self.outward_weight        = outward_weight
         self.cluster_spread        = cluster_spread
+        self.min_food_distance     = min_food_distance
         
         self.grid = OrthogonalMooreGrid([width, height], torus=False, capacity=num_creatures+1)
         self.nest_location = (width // 2, height // 2)
         self.food_collected: float = 0.0
+        self.dead_creatures: int = 0
 
         self.datacollector = DataCollector(
             model_reporters={
                 "Food Collected":   lambda m: m.food_collected,
                 "Food Remaining":   lambda m: m.food_remaining,
                 "Total Energy":     lambda m: sum(a.energy for a in m.agents_by_type[CreatureAgent] if a.alive),
+                "Alive Creatures":  lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive),
+                "Dead Creatures":   lambda m: m.dead_creatures,
                 "Resting":          lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
                 "Foraging":         lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == FORAGING),
                 "Returning Loaded": lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_LOADED),
@@ -86,12 +89,13 @@ class SwarmModel(Model):
             attempts += 1
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
-            # Keep clusters away from the nest      # TODO param?
-            if abs(cx - nest_cx) < 6 and abs(cy - nest_cy) < 6:
+            if abs(cx - nest_cx) < self.min_food_distance and abs(cy - nest_cy) < self.min_food_distance:
                 continue
             for _ in range(cells_per_cluster):
                 fx = int(np.clip(np.random.normal(cx, self.cluster_spread), 0, width - 1))
                 fy = int(np.clip(np.random.normal(cy, self.cluster_spread), 0, height - 1))
+                if abs(fx - nest_cx) < self.min_food_distance and abs(fy - nest_cy) < self.min_food_distance:
+                    continue
                 ca = self._get_cell_agent(self.grid[fx, fy])
                 if ca and not ca.is_nest:
                     ca.food += self.random.uniform(3.0, 8.0)
@@ -107,15 +111,22 @@ class SwarmModel(Model):
             if isinstance(obj, cell_agent):
                 return obj
         return None
+    
+    def update_death_count(self):
+        self.dead_creatures += 1
 
     @property
     def food_remaining(self):
         return sum(ca.food for ca in self.agents_by_type[cell_agent])
 
     def step(self):
+        if not self.running:
+            return
+        if not any(a.alive for a in self.agents_by_type[CreatureAgent]):
+            self.datacollector.collect(self)
+            self.running = False
+            return
         self.agents_by_type[cell_agent].do("step")
         self.agents_by_type[CreatureAgent].shuffle().do("step")
-        alive_agents = self.agents_by_type[CreatureAgent]
-        if len(alive_agents) == 0 or not any(a.alive for a in alive_agents):
-            self.running = False
         self.datacollector.collect(self)
+        

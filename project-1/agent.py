@@ -98,7 +98,7 @@ class CreatureAgent(CellAgent):
     def _check_death(self) -> bool:
         if self.energy <= 0 or self.temperature >= self.model.temperature_critical:
             self.alive = False
-            self.remove()
+            self.model.update_death_count()
             return True
         return False
 
@@ -107,11 +107,9 @@ class CreatureAgent(CellAgent):
             self.model.temperature_safe,
             self.temperature - self.model.cool_rate,
         )
-        # Recover energy while resting
-        # self.energy = min(
-        #     self.model.energy_max,
-        #     self.energy + self.model.rest_energy_recovery,
-        # )
+        self.energy -= self.model.base_energy_drain
+        if self._check_death():
+            return
         if (self.temperature <= self.model.temperature_safe and self.energy >= self.model.min_energy_to_forage):
             self.state = FORAGING
 
