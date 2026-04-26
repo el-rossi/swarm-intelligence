@@ -52,7 +52,7 @@ model_params = {
     "width": {
         "type":     "SliderInt",
         "value":    MODEL_PARAMS_DEFAULTS[0],
-        "label":    "Grid Width",
+        "label":    "Grid width",
         "min":      20,
         "max":      100,
         "step":     5
@@ -60,23 +60,23 @@ model_params = {
     "height": {
         "type":     "SliderInt",
         "value":    MODEL_PARAMS_DEFAULTS[1],
-        "label":    "Grid Height",
+        "label":    "Grid height",
         "min":      20,
         "max":      100,
         "step":     5
     },
-    "num_creatures": {
+    "creature_num": {
         "type":     "SliderInt",
         "value":    MODEL_PARAMS_DEFAULTS[2],
-        "label":    "Number of Creatures",
+        "label":    "Creature number",
         "min":      10,
         "max":      80,
         "step":     5
     },
-    "num_food_clusters": {
+    "cluster_num": {
         "type":     "SliderInt",
         "value":    MODEL_PARAMS_DEFAULTS[3],
-        "label":    "Food Clusters",
+        "label":    "Cluster number",
         "min":      1,
         "max":      15,
         "step":     1
@@ -84,12 +84,12 @@ model_params = {
     "cluster_spread": {
         "type":     "SliderFloat",
         "value":    1.5,
-        "label":    "Cluster Spread",
+        "label":    "Cluster spread",
         "min":      0.5,
         "max":      5.0,
         "step":     0.5
     },
-    "min_food_distance": {
+    "food_distance_min": {
         "type":     "SliderInt",
         "value":    6,
         "label":    "Food distance",
@@ -97,66 +97,42 @@ model_params = {
         "max":      10,
         "step":     1
     },
-    "evaporation_rate": {
-        "type":     "SliderFloat",
-        "value":    0.05,
-        "label":    "Pheromone Evaporation Rate",
-        "min":      0.01,
-        "max":      0.30,
-        "step":     0.01
-    },
-    "heat_rate": {
-        "type":     "SliderFloat",
-        "value":    0.8,
-        "label":    "Heat Rate (outside nest)",
-        "min":      0.1,
-        "max":      3.0,
-        "step":     0.1
-    },
-    "temperature_critical": {
-        "type":     "SliderFloat",
-        "value":    100.0,
-        "label":    "Critical Temperature (Tcrit)",
-        "min":      20.0,
-        "max":      200.0,
-        "step":     10.0
-    },
     "energy_max": {
         "type":     "SliderFloat",
         "value":    200.0,
-        "label":    "Max Energy (Emax)",
+        "label":    "Max energy",
         "min":      50.0,
         "max":      500.0,
         "step":     25.0
     },
-    "max_speed": {
+    "temperature_critical": {
+        "type":     "SliderFloat",
+        "value":    100.0,
+        "label":    "Critical temperature",
+        "min":      20.0,
+        "max":      200.0,
+        "step":     10.0
+    },
+    "heat_rate": {
+        "type":     "SliderFloat",
+        "value":    0.8,
+        "label":    "Heat rate",
+        "min":      0.1,
+        "max":      3.0,
+        "step":     0.1
+    },
+    "speed_max": {
         "type":     "SliderInt",
         "value":    3,
-        "label":    "Max Speed (cells/tick)",
+        "label":    "Max speed (cells/tick)",
         "min":      1,
         "max":      5,
         "step":     1
     },
-    "pheromone_deposit": {
-        "type":     "SliderFloat",
-        "value":    10.0,
-        "label":    "Pheromone Deposit Amount",
-        "min":      1.0,
-        "max":      50.0,
-        "step":     1.0
-    },
-    "exploration_weight": {
-        "type":     "SliderFloat",
-        "value":    1.0,
-        "label":    "Exploration Weight",
-        "min":      0.0,
-        "max":      5.0,
-        "step":     0.25
-    },
     "momentum_weight": {
         "type":     "SliderFloat",
         "value":    2.0,
-        "label":    "Momentum Weight",
+        "label":    "Momentum weight",
         "min":      0.0,
         "max":      5.0,
         "step":     0.5
@@ -164,10 +140,34 @@ model_params = {
     "outward_weight": {
         "type":     "SliderFloat",
         "value":    0.1,
-        "label":    "Outward Bias Weight",
+        "label":    "Outward bias weight",
         "min":      0.0,
         "max":      1.0,
         "step":     0.05
+    },
+    "pheromone_deposit": {
+        "type":     "SliderFloat",
+        "value":    10.0,
+        "label":    "Pheromone deposit amount",
+        "min":      1.0,
+        "max":      50.0,
+        "step":     1.0
+    },
+    "evaporation_rate": {
+        "type":     "SliderFloat",
+        "value":    0.05,
+        "label":    "Pheromone evaporation rate",
+        "min":      0.01,
+        "max":      0.30,
+        "step":     0.01
+    },
+    "exploration_weight": {
+        "type":     "SliderFloat",
+        "value":    1.0,
+        "label":    "Exploration weight",
+        "min":      0.0,
+        "max":      5.0,
+        "step":     0.25
     }
 }
 model = SwarmModel(*MODEL_PARAMS_DEFAULTS)
@@ -187,11 +187,10 @@ renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
 
-# RemainingFoodPlot    = make_plot_component({"Food Remaining": "green"})
-CollectedFoodPlot    = make_plot_component({"Food Collected": "gold"})
-AliveDeadPlot  = make_plot_component({"Alive Creatures": "green", "Dead Creatures": "red"})
-EnergyPlot     = make_plot_component({"Total Energy": "royalblue"})
-StatePlot   = make_plot_component({
+CollectedFoodPlot   = make_plot_component({"Food Collected": "gold"}) # TODO add pheromone deposited
+AliveDeadPlot       = make_plot_component({"Alive Creatures": "green", "Dead Creatures": "red"})
+EnergyPlot          = make_plot_component({"Total Energy": "royalblue"})
+StatePlot           = make_plot_component({
     "Resting":          "lightskyblue",
     "Foraging":         "darkslateblue",
     "Returning Loaded": "gold",

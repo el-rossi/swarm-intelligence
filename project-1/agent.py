@@ -43,7 +43,7 @@ class CreatureAgent(CellAgent):
     def _move_toward_nest(self, deposit_pheromone: bool = False):
         nx, ny = self.model.nest_location
         deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
-        for _ in range(self.model.max_speed):
+        for _ in range(self.model.speed_max):
             if deposit_pheromone:
                 ca = self._get_cell_agent(self.cell)
                 if ca:
@@ -62,7 +62,7 @@ class CreatureAgent(CellAgent):
 
     def _move_foraging(self):
         nx, ny = self.model.nest_location
-        for _ in range(self.model.max_speed):
+        for _ in range(self.model.speed_max):
             cx, cy = self.cell.coordinate
             neighbors = list(self.cell.get_neighborhood(radius=1, include_center=False))
             if not neighbors:
@@ -107,15 +107,15 @@ class CreatureAgent(CellAgent):
             self.model.temperature_safe,
             self.temperature - self.model.cool_rate,
         )
-        self.energy -= self.model.base_energy_drain
+        self.energy -= self.model.energy_drain_base
         if self._check_death():
             return
-        if (self.temperature <= self.model.temperature_safe and self.energy >= self.model.min_energy_to_forage):
+        if (self.temperature <= self.model.temperature_safe and self.energy >= self.model.energy_forage_min):
             self.state = FORAGING
 
     def _step_foraging(self):
         self.temperature += self.model.heat_rate
-        self.energy -= self.model.base_energy_drain + self.model.move_energy_cost
+        self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
         if self._check_death():
             return
         food_ca = self._sense_food_nearby()
@@ -125,14 +125,14 @@ class CreatureAgent(CellAgent):
             self.estimated_richness = food_ca.food
             self.state = RETURNING_LOADED
             return
-        if (self.temperature >= self.model.temperature_critical * self.model.abort_heat_ratio or self.energy <= self.model.min_energy_to_forage):
+        if (self.temperature >= self.model.temperature_critical * self.model.heat_abort_ratio or self.energy <= self.model.energy_forage_min):
             self.state = RETURNING_EMPTY
             return
         self._move_foraging()
 
     def _step_returning(self):
         self.temperature += self.model.heat_rate
-        self.energy -= self.model.base_energy_drain + self.model.move_energy_cost
+        self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
         if self._check_death():
             return
         if self._is_at_nest():
