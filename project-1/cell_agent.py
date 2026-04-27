@@ -11,4 +11,5 @@ class cell_agent(FixedAgent):
         self.pheromone: float   = 0.0
 
     def step(self):
+        #Pheromone evaporation
         self.pheromone = max(0.0, self.pheromone * (1.0 - self.model.evaporation_rate))

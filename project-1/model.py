@@ -58,13 +58,12 @@ class SwarmModel(Model):
         self.pheromone_deposit      = pheromone_deposit
         self.evaporation_rate       = evaporation_rate
         self.exploration_weight     = exploration_weight
-        
+        # Grid
         self.grid = OrthogonalMooreGrid([width, height], torus=False, capacity=creature_num+1)
         self.nest_location = (width // 2, height // 2)
-
+        # Stats
         self.food_collected: float = 0.0
         self.dead_creatures: int = 0
-
         self.datacollector = DataCollector(
             model_reporters={
                 "Food Collected":   lambda m: m.food_collected,
@@ -78,14 +77,17 @@ class SwarmModel(Model):
             }
         )
 
+        # Create cell agents for each grid cell
         for cell in self.grid:
             ca = cell_agent(self, len(self.agents), cell)
             self.agents.add(ca)
 
+        # Mark nest cell
         nest_ca = self._get_cell_agent(self.grid[self.nest_location])
         if nest_ca:
             nest_ca.is_nest = True
 
+        # Seed food
         target_food_cells = int(width * height * 0.15)
         cells_per_cluster = max(1, target_food_cells // cluster_num)
         nest_cx, nest_cy  = self.nest_location
@@ -93,11 +95,13 @@ class SwarmModel(Model):
         attempts = 0
         while seeded < cluster_num and attempts < 2000:
             attempts += 1
+            # Set cluster center
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
             if abs(cx - nest_cx) < self.food_distance_min and abs(cy - nest_cy) < self.food_distance_min:
                 continue
             for _ in range(cells_per_cluster):
+                # Set food cell around cluster center with normal distribution
                 fx = int(np.clip(np.random.normal(cx, self.cluster_spread), 0, width - 1))
                 fy = int(np.clip(np.random.normal(cy, self.cluster_spread), 0, height - 1))
                 if abs(fx - nest_cx) < self.food_distance_min and abs(fy - nest_cy) < self.food_distance_min:
@@ -106,6 +110,8 @@ class SwarmModel(Model):
                 if ca and not ca.is_nest:
                     ca.food += self.random.uniform(3.0, 8.0)
             seeded += 1
+        
+        # Create creatures at nest
         nest_cell = self.grid[self.nest_location]
         for i in range(creature_num):
             creature = CreatureAgent(self, len(self.agents), nest_cell)
@@ -118,15 +124,19 @@ class SwarmModel(Model):
         return None
     
     def update_death_count(self):
+        # Used for death stats
         self.dead_creatures += 1
 
     def step(self):
+        # Used to force stop
         if not self.running:
             return
+        # Stop when there are no creatures alive
         if not any(a.alive for a in self.agents_by_type[CreatureAgent]):
             self.datacollector.collect(self)
             self.running = False
             return
         self.agents_by_type[cell_agent].do("step")
+        # Randomize order of activation to prevent bias
         self.agents_by_type[CreatureAgent].shuffle().do("step")
         self.datacollector.collect(self)

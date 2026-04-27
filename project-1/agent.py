@@ -2,6 +2,7 @@ import numpy as np
 from mesa.discrete_space import CellAgent
 from cell_agent import cell_agent
 
+# States
 RESTING          = "resting"
 FORAGING         = "foraging"
 RETURNING_LOADED = "returning_loaded"
@@ -18,6 +19,8 @@ class CreatureAgent(CellAgent):
         self.energy: float              = model.energy_max
         self.temperature: float         = model.temperature_safe
         self.estimated_richness: float  = 0.0
+
+        # Initial heading (random non-zero direction)
         self.heading: tuple = model.random.choice(
             [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (dx, dy) != (0, 0)]
         )
@@ -40,10 +43,12 @@ class CreatureAgent(CellAgent):
         nx, ny = self.model.nest_location
         deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
         for _ in range(self.model.speed_max):
+            # Deposit pheromone based on estimated richness
             if deposit_pheromone:
                 ca = self._get_cell_agent(self.cell)
                 if ca:
                     ca.pheromone += deposit
+            # Find neighbor closest to nest
             neighbors = list(self.cell.get_neighborhood(radius=1, include_center=False))
             best_cell = min(
                 neighbors,
@@ -84,8 +89,10 @@ class CreatureAgent(CellAgent):
                     self.model.exploration_weight
                 )
                 weights.append(max(w, 1e-6))
+            # Weight normalization
             total = sum(weights)
             probs = [w / total for w in weights]
+            # Cell selection
             chosen = self.model.random.choices(neighbors, weights=probs, k=1)[0]
             # Heading update
             self.heading = (chosen.coordinate[0] - cx, chosen.coordinate[1] - cy)
@@ -115,8 +122,10 @@ class CreatureAgent(CellAgent):
         self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
         if self._is_dead():
             return
+        # Check for food in current and adjacent cells
         food_ca = self._get_food_nearby()
         if food_ca is not None:
+            # Collect 1 unit of food and return to nest
             food_ca.food = max(0.0, food_ca.food - 1.0)
             self.model.food_collected += 1.0
             self.estimated_richness = food_ca.food
