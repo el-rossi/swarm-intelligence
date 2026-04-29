@@ -24,37 +24,37 @@ This project implements a grid-based agent-based simulation of swarm intelligenc
 ## Experiments
 
 1. **Number of Creatures**
-   - Change `creature_num` (default: 50)
-   - Observe: Food collected, survival rate, time to extinction, congestion effects
+   - Affected parameters: `creature_num` (default: 50)
+   - Evaluation: Food collected, survival rate, time to extinction
 
 2. **Number of Food Clusters**
-   - Change `cluster_num` (default: 12)
-   - Observe: Foraging efficiency, time to food depletion, agent distribution
+   - Affected parameters: `cluster_num` (default: 12)
+   - Evaluation: Foraging efficiency, time to food depletion, agent distribution
 
 3. **Cluster Spread**
-   - Change `cluster_spread` 
-   - Observe: How food spatial distribution affects foraging and survival
+   - Affected parameters: `cluster_spread` 
+   - Evaluation: How food spatial distribution affects foraging and survival
 
 4. **Food Distance from Nest**
-   - Change `food_distance_min` 
-   - Observe: Impact on energy spent, survival, and food collection
+   - Affected parameters: `food_distance_min` 
+   - Evaluation: Impact on energy spent, survival, and food collection
 
 5. **Energy Parameters**
-   - Change `energy_max`, `energy_drain_base`, `energy_drain_move`, `min_energy_to_forage`
-   - Observe: How energy constraints affect agent lifespan and foraging
+   - Affected parameters: `energy_max`, `energy_drain_base`, `energy_drain_move`, `min_energy_to_forage`
+   - Evaluation: How energy constraints affect agent lifespan and foraging
 
 6. **Temperature Parameters**
-   - Change `temperature_critical`, `heat_rate`, `cool_rate`
-   - Observe: Impact on agent mortality and foraging cycles
+   - Affected parameters: `temperature_critical`, `heat_rate`, `cool_rate`
+   - Evaluation: Impact on agent mortality and foraging cycles
 
 7. **Pheromone Parameters**
-   - Change `pheromone_deposit`, `evaporation_rate`
-   - Observe: How communication affects foraging efficiency and path formation
+   - Affected parameters: `pheromone_deposit`, `evaporation_rate`
+   - Evaluation: How communication affects foraging efficiency and path formation
 
 8. **Exploration and Movement Biases**
-   - Change `exploration_weight`, `momentum_weight`, `outward_weight`
-   - Observe: How agent movement strategies affect resource discovery and exploitation
+   - Affected parameters: `exploration_weight`, `momentum_weight`, `outward_weight`
+   - Evaluation: How agent movement strategies affect resource discovery and exploitation
 
 9. **Grid Size**
-   - Change `width` and `height` (default: 60x60)
-   - Observe: Effects on agent density, foraging, and survival
+   - Affected parameters: `width` and `height` (default: 60x60)
+   - Evaluation: Effects on agent density, foraging, and survival
