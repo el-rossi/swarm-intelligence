@@ -47,7 +47,7 @@ def agent_portrayal(agent):
             color=color
         )
 
-MODEL_PARAMS_DEFAULTS = [60, 60, 50, 12]
+MODEL_PARAMS_DEFAULTS = [60, 60, 50, 12, 0.15]
 model_params = {
     "width": {
         "type":     "SliderInt",
@@ -96,6 +96,14 @@ model_params = {
         "min":      1,
         "max":      10,
         "step":     1
+    },
+    "food_coverage": {
+        "type":     "SliderFloat",
+        "value":    MODEL_PARAMS_DEFAULTS[4],
+        "label":    "Food coverage",
+        "min":      0.05,
+        "max":      0.5,
+        "step":     0.05
     },
     "energy_max": {
         "type":     "SliderFloat",

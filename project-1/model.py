@@ -15,6 +15,7 @@ class SwarmModel(Model):
         cluster_num: int            = 12,
         cluster_spread: float       = 1.5,
         food_distance_min: int      = 6,
+        food_coverage: float        = 0.15,
         # Energy
         energy_max: float           = 200.0,
         energy_drain_base: float    = 0.3,
@@ -39,6 +40,7 @@ class SwarmModel(Model):
         # Environment
         self.cluster_spread         = cluster_spread
         self.food_distance_min      = food_distance_min
+        self.food_coverage          = food_coverage
         # Energy
         self.energy_max             = energy_max
         self.energy_drain_base      = energy_drain_base
@@ -88,7 +90,7 @@ class SwarmModel(Model):
             nest_ca.is_nest = True
 
         # Seed food
-        target_food_cells = int(width * height * 0.15)
+        target_food_cells = int(width * height * self.food_coverage)
         cells_per_cluster = max(1, target_food_cells // cluster_num)
         nest_cx, nest_cy  = self.nest_location
         seeded  = 0
