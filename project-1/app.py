@@ -89,6 +89,14 @@ model_params = {
         "max":      5.0,
         "step":     0.5
     },
+    "cluster_distance_min": {
+        "type":     "SliderInt",
+        "value":    10,
+        "label":    "Cluster distance",
+        "min":      1,
+        "max":      15,
+        "step":     1
+    },
     "food_distance_min": {
         "type":     "SliderInt",
         "value":    6,
@@ -102,7 +110,7 @@ model_params = {
         "value":    MODEL_PARAMS_DEFAULTS[4],
         "label":    "Food coverage",
         "min":      0.05,
-        "max":      0.5,
+        "max":      0.20,
         "step":     0.05
     },
     "energy_max": {

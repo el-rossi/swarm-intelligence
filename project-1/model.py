@@ -14,6 +14,7 @@ class SwarmModel(Model):
         creature_num: int           = 50,
         cluster_num: int            = 12,
         cluster_spread: float       = 1.5,
+        cluster_distance_min: int   = 10,
         food_distance_min: int      = 6,
         food_coverage: float        = 0.15,
         # Energy
@@ -39,6 +40,7 @@ class SwarmModel(Model):
         super().__init__()
         # Environment
         self.cluster_spread         = cluster_spread
+        self.cluster_distance_min   = cluster_distance_min
         self.food_distance_min      = food_distance_min
         self.food_coverage          = food_coverage
         # Energy
@@ -93,25 +95,49 @@ class SwarmModel(Model):
         target_food_cells = int(width * height * self.food_coverage)
         cells_per_cluster = max(1, target_food_cells // cluster_num)
         nest_cx, nest_cy  = self.nest_location
-        seeded  = 0
-        attempts = 0
-        while seeded < cluster_num and attempts < 2000:
-            attempts += 1
-            # Set cluster center
+        seeded_cells = set()
+
+        clusters_placed = 0
+        cluster_attempts = 0
+        cluster_centers = []
+
+        while clusters_placed < cluster_num and len(seeded_cells) < target_food_cells and cluster_attempts < 2000:
+            cluster_attempts += 1
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
             if abs(cx - nest_cx) < self.food_distance_min and abs(cy - nest_cy) < self.food_distance_min:
                 continue
-            for _ in range(cells_per_cluster):
-                # Set food cell around cluster center with normal distribution
+            # Stay at least cluster_distance_min away from existing cluster centers
+            if any(np.hypot(cx - px, cy - py) < self.cluster_distance_min for px, py in cluster_centers):
+                continue
+            # Place cells_per_cluster unique cells in this cluster
+            placed_in_cluster = 0
+            cell_attempts = 0
+            while (
+                placed_in_cluster < cells_per_cluster and 
+                cell_attempts < cells_per_cluster * 10 and 
+                len(seeded_cells) < target_food_cells
+            ):
+                cell_attempts += 1
                 fx = int(np.clip(np.random.normal(cx, self.cluster_spread), 0, width - 1))
                 fy = int(np.clip(np.random.normal(cy, self.cluster_spread), 0, height - 1))
                 if abs(fx - nest_cx) < self.food_distance_min and abs(fy - nest_cy) < self.food_distance_min:
                     continue
+                if (fx, fy) in seeded_cells:
+                    continue
                 ca = self._get_cell_agent(self.grid[fx, fy])
                 if ca and not ca.is_nest:
                     ca.food += self.random.uniform(3.0, 8.0)
-            seeded += 1
+                    seeded_cells.add((fx, fy))
+                    placed_in_cluster += 1
+            if placed_in_cluster > 0:
+                cluster_centers.append((cx, cy))
+                clusters_placed += 1
+        
+        print(f"Actual clusters placed: {len(cluster_centers)}")
+        food_cells = sum(1 for cell in self.grid for ca in cell.agents if isinstance(ca, cell_agent) and ca.food > 0)
+        total_cells = self.grid.width * self.grid.height
+        print(f"Food coverage: {food_cells / total_cells * 100:.2f}% ({food_cells} of {total_cells} cells)")
         
         # Create creatures at nest
         nest_cell = self.grid[self.nest_location]
