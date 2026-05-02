@@ -32,7 +32,7 @@ class CreatureAgent(CellAgent):
         return None
 
     def _get_food_nearby(self) -> cell_agent | None:
-        local = self.cell.get_neighborhood(radius=1, include_center=True)
+        local = self.cell.get_neighborhood(radius = 1, include_center = True)
         for c in local:
             ca = self._get_cell_agent(c)
             if ca and ca.food > 0:
@@ -49,7 +49,7 @@ class CreatureAgent(CellAgent):
                 if ca:
                     ca.pheromone += deposit
             # Find neighbor closest to nest
-            neighbors = list(self.cell.get_neighborhood(radius=1, include_center=False))
+            neighbors = list(self.cell.get_neighborhood(radius = 1, include_center = False))
             best_cell = min(
                 neighbors,
                 key=lambda c: abs(c.coordinate[0] - nx) + abs(c.coordinate[1] - ny),
@@ -65,7 +65,7 @@ class CreatureAgent(CellAgent):
         nx, ny = self.model.nest_location
         for _ in range(self.model.speed_max):
             cx, cy = self.cell.coordinate
-            neighbors = list(self.cell.get_neighborhood(radius=1, include_center=False))
+            neighbors = list(self.cell.get_neighborhood(radius = 1, include_center = False))
             if not neighbors:
                 break
             hdx, hdy = self.heading
@@ -93,7 +93,7 @@ class CreatureAgent(CellAgent):
             total = sum(weights)
             probs = [w / total for w in weights]
             # Cell selection
-            chosen = self.model.random.choices(neighbors, weights=probs, k=1)[0]
+            chosen = self.model.random.choices(neighbors, weights = probs, k = 1)[0]
             # Heading update
             self.heading = (chosen.coordinate[0] - cx, chosen.coordinate[1] - cy)
             self.cell = chosen
@@ -114,7 +114,10 @@ class CreatureAgent(CellAgent):
         self.energy -= self.model.energy_drain_base
         if self._is_dead():
             return
-        if (self.temperature <= self.model.temperature_safe and self.energy >= self.model.energy_forage_min):
+        if (
+            self.temperature <= self.model.temperature_safe and 
+            self.energy >= self.model.energy_forage_min
+        ):
             self.state = FORAGING
 
     def _step_foraging(self):
@@ -131,7 +134,10 @@ class CreatureAgent(CellAgent):
             self.estimated_richness = food_ca.food
             self.state = RETURNING_LOADED
             return
-        if (self.temperature >= self.model.temperature_critical * self.model.heat_abort_ratio or self.energy <= self.model.energy_forage_min):
+        if (
+            self.temperature >= self.model.temperature_critical * self.model.heat_abort_ratio or 
+            self.energy <= self.model.energy_forage_min
+        ):
             self.state = RETURNING_EMPTY
             return
         self._move_foraging()
@@ -144,7 +150,7 @@ class CreatureAgent(CellAgent):
         if self._is_at_nest():
             self.state = RESTING
         else:
-            self._move_returning(deposit_pheromone=(self.state == RETURNING_LOADED))
+            self._move_returning(deposit_pheromone = (self.state == RETURNING_LOADED))
 
     def step(self):
         if not self.alive:

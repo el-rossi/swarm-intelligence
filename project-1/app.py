@@ -17,10 +17,10 @@ def agent_portrayal(agent):
         return
     if isinstance(agent, CreatureAgent):
         return AgentPortrayalStyle(
-            marker="o",
-            size=20,
-            zorder=2,
-            color=STATE_COLORS.get(agent.state, "grey")
+            marker = "o",
+            size = 20,
+            zorder = 2,
+            color = STATE_COLORS.get(agent.state, "grey")
         )
     if isinstance(agent, cell_agent):
         marker = "s"
@@ -41,13 +41,26 @@ def agent_portrayal(agent):
         else:
             color = "beige"
         return AgentPortrayalStyle(
-            marker=marker,
-            size=30,
-            zorder=0,
-            color=color
+            marker = marker,
+            size = 30,
+            zorder = 0,
+            color = color
         )
 
-MODEL_PARAMS_DEFAULTS = [60, 60, 50, 12, 0.15]
+MODEL_PARAMS_DEFAULTS = [
+    60,     # width
+    60,     # height
+    50,     # creature_num
+    12,     # cluster_num
+    1.5,    # cluster_spread
+    0.15,   # food_coverage
+    100.0,  # temperature_critical
+    0.8,    # heat_rate
+    3,      # speed_max
+    10.0,   # pheromone_deposit
+    0.05,   # evaporation_rate
+    1.0     # exploration_weight
+]
 model_params = {
     "width": {
         "type":     "SliderInt",
@@ -83,47 +96,23 @@ model_params = {
     },
     "cluster_spread": {
         "type":     "SliderFloat",
-        "value":    1.5,
+        "value":    MODEL_PARAMS_DEFAULTS[4],
         "label":    "Cluster spread",
         "min":      0.5,
-        "max":      5.0,
+        "max":      3.5,
         "step":     0.5
-    },
-    "cluster_distance_min": {
-        "type":     "SliderInt",
-        "value":    10,
-        "label":    "Cluster distance",
-        "min":      1,
-        "max":      15,
-        "step":     1
-    },
-    "food_distance_min": {
-        "type":     "SliderInt",
-        "value":    6,
-        "label":    "Food distance",
-        "min":      1,
-        "max":      10,
-        "step":     1
     },
     "food_coverage": {
         "type":     "SliderFloat",
-        "value":    MODEL_PARAMS_DEFAULTS[4],
+        "value":    MODEL_PARAMS_DEFAULTS[5],
         "label":    "Food coverage",
         "min":      0.05,
         "max":      0.20,
         "step":     0.05
     },
-    "energy_max": {
-        "type":     "SliderFloat",
-        "value":    200.0,
-        "label":    "Max energy",
-        "min":      50.0,
-        "max":      500.0,
-        "step":     25.0
-    },
     "temperature_critical": {
         "type":     "SliderFloat",
-        "value":    100.0,
+        "value":    MODEL_PARAMS_DEFAULTS[6],
         "label":    "Critical temperature",
         "min":      20.0,
         "max":      200.0,
@@ -131,7 +120,7 @@ model_params = {
     },
     "heat_rate": {
         "type":     "SliderFloat",
-        "value":    0.8,
+        "value":    MODEL_PARAMS_DEFAULTS[7],
         "label":    "Heat rate",
         "min":      0.1,
         "max":      3.0,
@@ -139,66 +128,63 @@ model_params = {
     },
     "speed_max": {
         "type":     "SliderInt",
-        "value":    3,
-        "label":    "Max speed (cells/tick)",
+        "value":    MODEL_PARAMS_DEFAULTS[8],
+        "label":    "Speed",
         "min":      1,
         "max":      5,
         "step":     1
     },
-    "momentum_weight": {
-        "type":     "SliderFloat",
-        "value":    2.0,
-        "label":    "Momentum weight",
-        "min":      0.0,
-        "max":      5.0,
-        "step":     0.5
-    },
-    "outward_weight": {
-        "type":     "SliderFloat",
-        "value":    0.1,
-        "label":    "Outward bias weight",
-        "min":      0.0,
-        "max":      1.0,
-        "step":     0.05
-    },
     "pheromone_deposit": {
         "type":     "SliderFloat",
-        "value":    10.0,
-        "label":    "Pheromone deposit amount",
+        "value":    MODEL_PARAMS_DEFAULTS[9],
+        "label":    "Pheromone deposit",
         "min":      1.0,
         "max":      50.0,
         "step":     1.0
     },
     "evaporation_rate": {
         "type":     "SliderFloat",
-        "value":    0.05,
-        "label":    "Pheromone evaporation rate",
+        "value":    MODEL_PARAMS_DEFAULTS[10],
+        "label":    "Pheromone evaporation",
         "min":      0.01,
         "max":      0.30,
         "step":     0.01
     },
     "exploration_weight": {
         "type":     "SliderFloat",
-        "value":    1.0,
+        "value":    MODEL_PARAMS_DEFAULTS[11],
         "label":    "Exploration weight",
         "min":      0.0,
         "max":      5.0,
         "step":     0.25
     }
 }
-model = SwarmModel(*MODEL_PARAMS_DEFAULTS)
+model = SwarmModel(
+    width                   = MODEL_PARAMS_DEFAULTS[0],
+    height                  = MODEL_PARAMS_DEFAULTS[1],
+    creature_num            = MODEL_PARAMS_DEFAULTS[2],
+    cluster_num             = MODEL_PARAMS_DEFAULTS[3],
+    cluster_spread          = MODEL_PARAMS_DEFAULTS[4],
+    food_coverage           = MODEL_PARAMS_DEFAULTS[5],
+    temperature_critical    = MODEL_PARAMS_DEFAULTS[6],
+    heat_rate               = MODEL_PARAMS_DEFAULTS[7],
+    speed_max               = MODEL_PARAMS_DEFAULTS[8],
+    pheromone_deposit       = MODEL_PARAMS_DEFAULTS[9],
+    evaporation_rate        = MODEL_PARAMS_DEFAULTS[10],
+    exploration_weight      = MODEL_PARAMS_DEFAULTS[11]
+)
 
 def post_process_space(ax):
     ax.set_aspect("equal")
     ax.set_xticks([])
     ax.set_yticks([])
-    width  = renderer.space.width
+    width = renderer.space.width
     height = renderer.space.height
-    ax.set_xticks(np.arange(-0.5, width,  1), minor=True)
-    ax.set_yticks(np.arange(-0.5, height, 1), minor=True)
-    ax.grid(which="minor", color="grey", linestyle="-", linewidth=0.5)
+    ax.set_xticks(np.arange(-0.5, width,  1), minor = True)
+    ax.set_yticks(np.arange(-0.5, height, 1), minor = True)
+    ax.grid(which = "minor", color = "grey", linestyle = "-", linewidth = 0.5)
 
-renderer = SpaceRenderer(model, backend="matplotlib").setup_agents(agent_portrayal)
+renderer = SpaceRenderer(model, backend = "matplotlib").setup_agents(agent_portrayal)
 renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
@@ -217,8 +203,8 @@ StatePlot           = make_plot_component({
 page = SolaraViz(
     model,
     renderer,
-    components=[EnergyPlot, StatePlot, CollectedFoodPlot, AliveDeadPlot],
-    model_params=model_params,
-    name="ACO Swarm - Survival Simulation"
+    components = [EnergyPlot, StatePlot, CollectedFoodPlot, AliveDeadPlot],
+    model_params = model_params,
+    name = "ACO Swarm - Survival Simulation"
 )
 page

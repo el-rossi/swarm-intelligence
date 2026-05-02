@@ -9,62 +9,46 @@ class SwarmModel(Model):
 
     def __init__(self,
         # Environment
-        width: int                  = 60,
-        height: int                 = 60,
-        creature_num: int           = 50,
-        cluster_num: int            = 12,
-        cluster_spread: float       = 1.5,
-        cluster_distance_min: int   = 10,
-        food_distance_min: int      = 6,
-        food_coverage: float        = 0.15,
-        # Energy
-        energy_max: float           = 200.0,
-        energy_drain_base: float    = 0.3,
-        energy_drain_move: float    = 0.2,
-        energy_forage_min: float    = 40.0,
+        width: int,
+        height: int,
+        creature_num: int,
+        cluster_num: int,
+        cluster_spread: float,
+        food_coverage: float,
         # Temperature
-        temperature_safe: float     = 20.0,
-        temperature_critical: float = 100.0,
-        cool_rate: float            = 1.5,
-        heat_rate: float            = 0.8,
-        heat_abort_ratio: float     = 0.75,
+        temperature_critical: float,
+        heat_rate: float,
         # Movement
-        speed_max: int              = 3,
-        momentum_weight: float      = 2.0,
-        outward_weight: float       = 0.1,
+        speed_max: int,
         # ACO
-        pheromone_deposit: float    = 10.0,
-        evaporation_rate: float     = 0.05,
-        exploration_weight: float   = 1.0
+        pheromone_deposit: float,
+        evaporation_rate: float,
+        exploration_weight: float
     ):
         super().__init__()
-        # Environment
-        self.cluster_spread         = cluster_spread
-        self.cluster_distance_min   = cluster_distance_min
-        self.food_distance_min      = food_distance_min
-        self.food_coverage          = food_coverage
         # Energy
-        self.energy_max             = energy_max
-        self.energy_drain_base      = energy_drain_base
-        self.energy_drain_move      = energy_drain_move
-        self.energy_forage_min      = energy_forage_min
+        self.energy_max: float          = 200.0
+        self.energy_drain_base: float   = 0.3
+        self.energy_drain_move: float   = 0.2
+        self.energy_forage_min: float   = 40.0
         # Temperature
-        self.temperature_safe       = temperature_safe
-        self.temperature_critical   = temperature_critical
-        self.cool_rate              = cool_rate
-        self.heat_rate              = heat_rate
-        self.heat_abort_ratio       = heat_abort_ratio
+        self.temperature_safe: float    = 20.0
+        self.temperature_critical       = temperature_critical
+        self.cool_rate: float           = 1.5
+        self.heat_rate                  = heat_rate
+        self.heat_abort_ratio: float    = 0.75
         # Movement
-        self.speed_max              = speed_max
-        self.momentum_weight        = momentum_weight
-        self.outward_weight         = outward_weight
+        self.speed_max                  = speed_max
+        self.momentum_weight: float     = 2.0
+        self.outward_weight: float      = 0.1
         # ACO
-        self.pheromone_deposit      = pheromone_deposit
-        self.evaporation_rate       = evaporation_rate
-        self.exploration_weight     = exploration_weight
+        self.pheromone_deposit          = pheromone_deposit
+        self.evaporation_rate           = evaporation_rate
+        self.exploration_weight         = exploration_weight
         # Grid
         self.grid = OrthogonalMooreGrid([width, height], torus=False, capacity=creature_num+1)
         self.nest_location = (width // 2, height // 2)
+        
         # Stats
         self.food_collected: float = 0.0
         self.dead_creatures: int = 0
@@ -92,23 +76,24 @@ class SwarmModel(Model):
             nest_ca.is_nest = True
 
         # Seed food
-        target_food_cells = int(width * height * self.food_coverage)
+        target_food_cells = int(width * height * food_coverage)
         cells_per_cluster = max(1, target_food_cells // cluster_num)
         nest_cx, nest_cy  = self.nest_location
         seeded_cells = set()
-
-        clusters_placed = 0
-        cluster_attempts = 0
+        cluster_distance_min: int = 10
+        food_distance_min: int = 6
+        clusters_placed: int = 0
+        cluster_attempts: int = 0
         cluster_centers = []
 
         while clusters_placed < cluster_num and len(seeded_cells) < target_food_cells and cluster_attempts < 2000:
             cluster_attempts += 1
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
-            if abs(cx - nest_cx) < self.food_distance_min and abs(cy - nest_cy) < self.food_distance_min:
+            if (abs(cx - nest_cx) < food_distance_min and abs(cy - nest_cy) < food_distance_min):
                 continue
             # Stay at least cluster_distance_min away from existing cluster centers
-            if any(np.hypot(cx - px, cy - py) < self.cluster_distance_min for px, py in cluster_centers):
+            if (any(np.hypot(cx - px, cy - py) < cluster_distance_min for px, py in cluster_centers)):
                 continue
             # Place cells_per_cluster unique cells in this cluster
             placed_in_cluster = 0
@@ -119,9 +104,9 @@ class SwarmModel(Model):
                 len(seeded_cells) < target_food_cells
             ):
                 cell_attempts += 1
-                fx = int(np.clip(np.random.normal(cx, self.cluster_spread), 0, width - 1))
-                fy = int(np.clip(np.random.normal(cy, self.cluster_spread), 0, height - 1))
-                if abs(fx - nest_cx) < self.food_distance_min and abs(fy - nest_cy) < self.food_distance_min:
+                fx = int(np.clip(np.random.normal(cx, cluster_spread), 0, width - 1))
+                fy = int(np.clip(np.random.normal(cy, cluster_spread), 0, height - 1))
+                if abs(fx - nest_cx) < food_distance_min and abs(fy - nest_cy) < food_distance_min:
                     continue
                 if (fx, fy) in seeded_cells:
                     continue
