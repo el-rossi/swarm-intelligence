@@ -57,10 +57,10 @@ class SwarmModel(Model):
         self.dead_creatures: int = 0
         self.datacollector = DataCollector(
             model_reporters={
-                "Food Collected":   lambda m: m.food_collected,
+                "Total Pheromone":  lambda m: m.get_total_pheromone(),
                 "Average Energy":   lambda m: m.get_average_energy(),
-                "Alive Creatures":  lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive),
-                "Dead Creatures":   lambda m: m.dead_creatures,
+                "Food Collected":   lambda m: m.food_collected,
+                "Dead":             lambda m: m.dead_creatures,
                 "Resting":          lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
                 "Foraging":         lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == FORAGING),
                 "Returning Loaded": lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_LOADED),
@@ -145,6 +145,9 @@ class SwarmModel(Model):
             return 0
         return sum(a.energy for a in agents) / len(agents)
     
+    def get_total_pheromone(self):
+        return sum(ca.pheromone for ca in self.agents_by_type[cell_agent])
+
     def update_death_count(self):
         # Used for death stats
         self.dead_creatures += 1

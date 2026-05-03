@@ -17,22 +17,24 @@ def agent_portrayal(agent):
     if agent is None:
         return
     if isinstance(agent, CreatureAgent):
-        return AgentPortrayalStyle(
-            marker = "o",
-            size = 20,
-            zorder = 2,
-            color = STATE_COLORS.get(agent.state, "grey")
-        )
+        marker = "o"
+        size = 10
+        zorder = 2
+        color = "darkgrey" if not getattr(agent, "alive", True) else STATE_COLORS.get(agent.state, "lightgrey")
     if isinstance(agent, cell_agent):
         marker = "s"
+        size = 30
+        zorder = 0
         if agent.is_nest:
-            color = "saddlebrown"
             marker = "D"
+            size = 40
+            color = "saddlebrown"
         elif agent.food > 0:
+            marker = "D"
+            size = 40
             intensity = min(1.0, agent.food / 8.0)
             g = int(55 + 150 * intensity)
             color = f"#00{g:02x}00"
-            marker = "D"
         elif agent.pheromone > 0:
             intensity = min(1.0, agent.pheromone / 50.0)
             r = 255
@@ -41,12 +43,12 @@ def agent_portrayal(agent):
             color = f"#{r:02x}{g:02x}{b:02x}"
         else:
             color = "beige"
-        return AgentPortrayalStyle(
-            marker = marker,
-            size = 30,
-            zorder = 0,
-            color = color
-        )
+    return AgentPortrayalStyle(
+        marker = marker,
+        size = size,
+        zorder = zorder,
+        color = color
+    )
 
 MODEL_PARAMS_DEFAULTS = [
     60,     # width
@@ -194,10 +196,11 @@ renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
 
-CollectedFoodPlot   = make_plot_component({"Food Collected": "gold"}) # TODO add pheromone deposited
-AliveDeadPlot       = make_plot_component({"Alive Creatures": "green", "Dead Creatures": "red"})
-EnergyPlot          = make_plot_component({"Average Energy": "royalblue"})
+FoodPlot            = make_plot_component({"Food Collected": "#00cd00"}) 
+EnergyPlot          = make_plot_component({"Average Energy": "darkorange"})
+PheromonePlot       = make_plot_component({"Total Pheromone": "#ff0050"})
 StatePlot           = make_plot_component({
+    "Dead":             "darkgrey",
     "Resting":          "lightskyblue",
     "Foraging":         "darkslateblue",
     "Returning Loaded": "gold",
@@ -207,7 +210,7 @@ StatePlot           = make_plot_component({
 page = SolaraViz(
     model,
     renderer,
-    components = [StatePlot, EmptySlot, AliveDeadPlot, EnergyPlot, CollectedFoodPlot],
+    components = [FoodPlot, EmptySlot, PheromonePlot, StatePlot, EnergyPlot],
     model_params = model_params,
     name = "ACO Swarm - Survival Simulation"
 )
