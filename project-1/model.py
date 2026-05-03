@@ -1,4 +1,7 @@
+import os
+import datetime
 import numpy as np
+import pandas as pd
 from mesa import Model
 from mesa.discrete_space import OrthogonalMooreGrid
 from mesa.datacollection import DataCollector
@@ -55,7 +58,7 @@ class SwarmModel(Model):
         self.datacollector = DataCollector(
             model_reporters={
                 "Food Collected":   lambda m: m.food_collected,
-                "Total Energy":     lambda m: sum(a.energy for a in m.agents_by_type[CreatureAgent] if a.alive),
+                "Average Energy":   lambda m: m.get_average_energy(),
                 "Alive Creatures":  lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive),
                 "Dead Creatures":   lambda m: m.dead_creatures,
                 "Resting":          lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
@@ -135,10 +138,26 @@ class SwarmModel(Model):
             if isinstance(obj, cell_agent):
                 return obj
         return None
+
+    def get_average_energy(self):
+        agents = [a for a in self.agents_by_type[CreatureAgent] if a.alive]
+        if not agents:
+            return 0
+        return sum(a.energy for a in agents) / len(agents)
     
     def update_death_count(self):
         # Used for death stats
         self.dead_creatures += 1
+
+    def export_data_to_csv(self, filename = None):
+        if filename is None:
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
+            filename = f"{timestamp}.csv"
+        data_dir = "data"
+        os.makedirs(data_dir, exist_ok=True)
+        filepath = os.path.join(data_dir, filename)
+        df = self.datacollector.get_model_vars_dataframe()
+        df.to_csv(filepath)
 
     def step(self):
         # Used to force stop
@@ -148,6 +167,7 @@ class SwarmModel(Model):
         if not any(a.alive for a in self.agents_by_type[CreatureAgent]):
             self.datacollector.collect(self)
             self.running = False
+            self.export_data_to_csv()
             return
         self.agents_by_type[cell_agent].do("step")
         # Randomize order of activation to prevent bias

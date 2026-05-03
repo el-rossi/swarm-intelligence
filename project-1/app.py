@@ -1,3 +1,4 @@
+import solara
 import numpy as np
 from mesa.visualization import (Slider, SolaraViz, SpaceRenderer, make_plot_component)
 from mesa.visualization.components import AgentPortrayalStyle
@@ -184,6 +185,10 @@ def post_process_space(ax):
     ax.set_yticks(np.arange(-0.5, height, 1), minor = True)
     ax.grid(which = "minor", color = "grey", linestyle = "-", linewidth = 0.5)
 
+@solara.component
+def EmptySlot(model):
+    return
+
 renderer = SpaceRenderer(model, backend = "matplotlib").setup_agents(agent_portrayal)
 renderer.post_process = post_process_space
 renderer.draw_agents()
@@ -191,7 +196,7 @@ renderer.render()
 
 CollectedFoodPlot   = make_plot_component({"Food Collected": "gold"}) # TODO add pheromone deposited
 AliveDeadPlot       = make_plot_component({"Alive Creatures": "green", "Dead Creatures": "red"})
-EnergyPlot          = make_plot_component({"Total Energy": "royalblue"})
+EnergyPlot          = make_plot_component({"Average Energy": "royalblue"})
 StatePlot           = make_plot_component({
     "Resting":          "lightskyblue",
     "Foraging":         "darkslateblue",
@@ -199,11 +204,10 @@ StatePlot           = make_plot_component({
     "Returning Empty":  "mediumpurple"
 })
 
-# TODO fix overlap between grid and state plot
 page = SolaraViz(
     model,
     renderer,
-    components = [EnergyPlot, StatePlot, CollectedFoodPlot, AliveDeadPlot],
+    components = [StatePlot, EmptySlot, AliveDeadPlot, EnergyPlot, CollectedFoodPlot],
     model_params = model_params,
     name = "ACO Swarm - Survival Simulation"
 )
