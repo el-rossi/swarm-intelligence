@@ -25,12 +25,14 @@ class CreatureAgent(CellAgent):
             [(dx, dy) for dx in (-1, 0, 1) for dy in (-1, 0, 1) if (dx, dy) != (0, 0)]
         )
 
+    # Return the cell_agent in a given cell, None otherwise
     def _get_cell_agent(self, cell) -> cell_agent | None:
         for obj in cell.agents:
             if isinstance(obj, cell_agent):
                 return obj
         return None
 
+    # Return a cell_agent with food in the current or adjacent cells, None otherwise
     def _get_food_nearby(self) -> cell_agent | None:
         local = self.cell.get_neighborhood(radius = 1, include_center = True)
         for c in local:
@@ -39,6 +41,7 @@ class CreatureAgent(CellAgent):
                 return ca
         return None
 
+    # Move towards nest
     def _move_returning(self, deposit_pheromone: bool = False):
         nx, ny = self.model.nest_location
         deposit = self.model.pheromone_deposit * (1.0 + self.estimated_richness)
@@ -92,16 +95,18 @@ class CreatureAgent(CellAgent):
             # Weight normalization
             total = sum(weights)
             probs = [w / total for w in weights]
-            # Cell selection
+            # Cell selection based on weights
             chosen = self.model.random.choices(neighbors, weights = probs, k = 1)[0]
             # Heading update
             self.heading = (chosen.coordinate[0] - cx, chosen.coordinate[1] - cy)
             self.cell = chosen
 
+    # Check if agent is at the nest cell
     def _is_at_nest(self) -> bool:
         ca = self._get_cell_agent(self.cell)
         return ca is not None and ca.is_nest
 
+    # Check if agent is dead (energy depleted or overheated)
     def _is_dead(self) -> bool:
         if self.energy <= 0 or self.temperature >= self.model.temperature_critical:
             self.alive = False
@@ -109,32 +114,40 @@ class CreatureAgent(CellAgent):
             return True
         return False
 
+    # RESTING logic
     def _step_resting(self):
+        # Parameter update (recovery)
         self.temperature = max(self.model.temperature_safe, self.temperature - self.model.cool_rate)
         self.energy -= self.model.energy_drain_base
+        # Check death
         if self._is_dead():
             return
+        # Transition to FORAGING if cooled and enough energy
         if (
             self.temperature <= self.model.temperature_safe and 
             self.energy >= self.model.energy_forage_min
         ):
             self.state = FORAGING
 
+    # FORAGING logic
     def _step_foraging(self):
+        # Parameter update (deterioration)
         self.temperature += self.model.heat_rate
         self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
+        # Check death
         if self._is_dead():
             return
         # Check for food in current and adjacent cells
         food_ca = self._get_food_nearby()
         if food_ca is not None:
-            # Collect 1 unit of food and return to nest
+            # Collect 1 unit of food and transition to RETURNING_LOADED
             food_ca.food = max(0.0, food_ca.food - 1.0)
             food_ca.food_collected += 1.0
             self.model.food_collected += 1.0
             self.estimated_richness = food_ca.food
             self.state = RETURNING_LOADED
             return
+        # Transition to RETURNING_EMPTY if overheated or low on energy
         if (
             self.temperature >= self.model.temperature_critical * self.model.heat_abort_ratio or 
             self.energy <= self.model.energy_forage_min
@@ -143,11 +156,15 @@ class CreatureAgent(CellAgent):
             return
         self._move_foraging()
 
+    # RETURNING logic (both loaded and empty)
     def _step_returning(self):
+        # Parameter update (deterioration)
         self.temperature += self.model.heat_rate
         self.energy -= (self.model.energy_drain_base + self.model.energy_drain_move)
+        # Check death
         if self._is_dead():
             return
+        # Transition to RESTING when nest is reached
         if self._is_at_nest():
             self.state = RESTING
         else:

@@ -91,13 +91,16 @@ class SwarmModel(Model):
         cluster_attempts: int = 0
         cluster_centers = []
 
+        # Place clusters until desired number and coverage are reached
         while clusters_placed < cluster_num and len(seeded_cells) < target_food_cells and cluster_attempts < 2000:
             cluster_attempts += 1
+            # Select random cluster center
             cx = self.random.randint(0, width - 1)
             cy = self.random.randint(0, height - 1)
+            # Avoid nest proximity
             if (abs(cx - nest_cx) < food_distance_min and abs(cy - nest_cy) < food_distance_min):
                 continue
-            # Stay at least cluster_distance_min away from existing cluster centers
+            # Avoid cluster proximity
             if (any(np.hypot(cx - px, cy - py) < cluster_distance_min for px, py in cluster_centers)):
                 continue
             # Place cells_per_cluster unique cells in this cluster
@@ -109,21 +112,27 @@ class SwarmModel(Model):
                 len(seeded_cells) < target_food_cells
             ):
                 cell_attempts += 1
+                # Sample food cell location from normal distribution around cluster center
                 fx = int(np.clip(np.random.normal(cx, cluster_spread), 0, width - 1))
                 fy = int(np.clip(np.random.normal(cy, cluster_spread), 0, height - 1))
+                # Avoid nest proximity
                 if abs(fx - nest_cx) < food_distance_min and abs(fy - nest_cy) < food_distance_min:
                     continue
+                # Skip cell if already seeded
                 if (fx, fy) in seeded_cells:
                     continue
                 ca = self._get_cell_agent(self.grid[fx, fy])
                 if ca and not ca.is_nest:
+                    # Place random amount of food
                     ca.food += self.random.uniform(3.0, 8.0)
                     seeded_cells.add((fx, fy))
                     placed_in_cluster += 1
+            # Only count cluster if at least one food cell was successfully placed 
             if placed_in_cluster > 0:
                 cluster_centers.append((cx, cy))
                 clusters_placed += 1
         
+        # Cluster and food placement stats
         print(f"Actual clusters placed: {len(cluster_centers)}")
         food_cells = sum(1 for cell in self.grid for ca in cell.agents if isinstance(ca, cell_agent) and ca.food > 0)
         total_cells = self.grid.width * self.grid.height
@@ -135,12 +144,14 @@ class SwarmModel(Model):
             creature = CreatureAgent(self, len(self.agents), nest_cell)
             self.agents.add(creature)
 
+    # Return the cell_agent in a given cell, None otherwise
     def _get_cell_agent(self, cell) -> cell_agent | None:
         for obj in cell.agents:
             if isinstance(obj, cell_agent):
                 return obj
         return None
     
+    # Gather data for pheromone heatmap
     def get_pheromone_grid(self):
         width, height = self.grid.width, self.grid.height
         grid = np.zeros((width, height))
@@ -151,6 +162,7 @@ class SwarmModel(Model):
                     grid[x, y] = ca.pheromone
         return grid.tolist()
     
+    # Gather data for food heatmap
     def get_food_collected_grid(self):
         width, height = self.grid.width, self.grid.height
         grid = np.zeros((width, height))
@@ -161,19 +173,22 @@ class SwarmModel(Model):
                     grid[x, y] = ca.food_collected
         return grid.tolist()
     
+    # Gather data for energy plot
     def get_average_energy(self):
         agents = [a for a in self.agents_by_type[CreatureAgent] if a.alive]
         if not agents:
             return 0
         return sum(a.energy for a in agents) / len(agents)
     
+    # Gather data for pheromone plot
     def get_total_pheromone(self):
         return sum(ca.pheromone for ca in self.agents_by_type[cell_agent])
 
+    # Gather data for state plot
     def update_death_count(self):
-        # Used for death stats
         self.dead_creatures += 1
 
+    # Export collected data to a CSV file 
     def export_data_to_csv(self, filename = None):
         if filename is None:
             timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -190,11 +205,15 @@ class SwarmModel(Model):
             return
         # Stop when there are no creatures alive
         if not any(a.alive for a in self.agents_by_type[CreatureAgent]):
+            # Collect data for the last step
             self.datacollector.collect(self)
             self.running = False
+            # Export data when simulation ends
             self.export_data_to_csv()
             return
+        # Step all cell agents
         self.agents_by_type[cell_agent].do("step")
         # Randomize order of activation to prevent bias
         self.agents_by_type[CreatureAgent].shuffle().do("step")
+        # Collect data for this step
         self.datacollector.collect(self)

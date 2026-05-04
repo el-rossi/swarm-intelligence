@@ -6,6 +6,7 @@ from model import SwarmModel
 from agent import CreatureAgent, RESTING, FORAGING, RETURNING_LOADED, RETURNING_EMPTY
 from cell_agent import cell_agent
 
+# State color mapping
 STATE_COLORS = {
     RESTING:          "lightskyblue",
     FORAGING:         "darkslateblue",
@@ -16,31 +17,37 @@ STATE_COLORS = {
 def agent_portrayal(agent):
     if agent is None:
         return
+    # Creature agents
     if isinstance(agent, CreatureAgent):
         marker = "o"
         size = 10
         zorder = 2
         color = "darkgrey" if not getattr(agent, "alive", True) else STATE_COLORS.get(agent.state, "lightgrey")
+    # Cell agents
     if isinstance(agent, cell_agent):
         marker = "s"
         size = 30
         zorder = 0
+        # Nest
         if agent.is_nest:
             marker = "D"
             size = 40
             color = "saddlebrown"
+        # Food
         elif agent.food > 0:
             marker = "D"
             size = 40
             intensity = min(1.0, agent.food / 8.0)
             g = int(55 + 150 * intensity)
             color = f"#00{g:02x}00"
+        # Pheromone
         elif agent.pheromone > 0:
             intensity = min(1.0, agent.pheromone / 50.0)
             r = 255
             g = int(255 * (1.0 - intensity))
             b = int(224 * (1.0 - intensity) + 80 * intensity)
             color = f"#{r:02x}{g:02x}{b:02x}"
+        # Empty 
         else:
             color = "beige"
     return AgentPortrayalStyle(
@@ -50,6 +57,7 @@ def agent_portrayal(agent):
         color = color
     )
 
+# Model parameters - Default values
 MODEL_PARAMS_DEFAULTS = [
     60,     # width
     60,     # height
@@ -64,6 +72,7 @@ MODEL_PARAMS_DEFAULTS = [
     0.05,   # evaporation_rate
     1.0     # exploration_weight
 ]
+# Model parameters - UI configuration
 model_params = {
     "width": {
         "type":     "SliderInt",
@@ -162,6 +171,7 @@ model_params = {
         "step":     0.25
     }
 }
+# Model instantiation with default parameters
 model = SwarmModel(
     width                   = MODEL_PARAMS_DEFAULTS[0],
     height                  = MODEL_PARAMS_DEFAULTS[1],
@@ -177,6 +187,7 @@ model = SwarmModel(
     exploration_weight      = MODEL_PARAMS_DEFAULTS[11]
 )
 
+# Grid setup
 def post_process_space(ax):
     ax.set_aspect("equal")
     ax.set_xticks([])
@@ -187,6 +198,7 @@ def post_process_space(ax):
     ax.set_yticks(np.arange(-0.5, height, 1), minor = True)
     ax.grid(which = "minor", color = "grey", linestyle = "-", linewidth = 0.5)
 
+# Used for layout spacing (to avoid overlap between grid and charts)
 @solara.component
 def EmptySlot(model):
     return
@@ -196,6 +208,7 @@ renderer.post_process = post_process_space
 renderer.draw_agents()
 renderer.render()
 
+# Plot components for stats
 FoodPlot            = make_plot_component({"Food Collected": "#00cd00"}) 
 EnergyPlot          = make_plot_component({"Average Energy": "darkorange"})
 PheromonePlot       = make_plot_component({"Total Pheromone": "#ff0050"})
@@ -207,6 +220,7 @@ StatePlot           = make_plot_component({
     "Returning Empty":  "mediumpurple"
 })
 
+# Page setup
 page = SolaraViz(
     model,
     renderer,

@@ -23,38 +23,27 @@ This project implements a grid-based agent-based simulation of swarm intelligenc
 
 ## Experiments
 
-1. **Number of Creatures**
-   - Affected parameters: `creature_num` (default: 50)
-   - Evaluation: Food collected, survival rate, time to extinction
+| # | Experiment                        | Affected Parameters                                                                 | Evaluation Metrics                                      |
+|---|-----------------------------------|-------------------------------------------------------------------------------------|---------------------------------------------------------|
+| 1 | Number of Creatures               | `creature_num`                                                                      | Food collected, survival rate, time to extinction       |
+| 2 | Number of Food Clusters           | `cluster_num`                                                                       | Foraging efficiency, time to food depletion, agent distribution |
+| 3 | Cluster Spread                    | `cluster_spread`                                                                    | Food spatial distribution effect on foraging and survival |
+| 4 | Temperature Parameters            | `temperature_critical`, `heat_rate`, ~~`cool_rate`~~                                | Agent mortality, foraging cycles                        |
+| 5 | Pheromone Parameters              | `pheromone_deposit`, `evaporation_rate`                                             | Foraging efficiency, path formation                     |
+| 6 | Exploration and Movement Biases   | `exploration_weight`, ~~`momentum_weight`~~, ~~`outward_weight`~~                   | Resource discovery and exploitation                     |
+| 7 | Grid Size                         | `width`, `height`                                                                   | Agent density, foraging, survival                       |
 
-2. **Number of Food Clusters**
-   - Affected parameters: `cluster_num` (default: 12)
-   - Evaluation: Foraging efficiency, time to food depletion, agent distribution
 
-3. **Cluster Spread**
-   - Affected parameters: `cluster_spread` 
-   - Evaluation: How food spatial distribution affects foraging and survival
+<!-- 
+| # | Experiment                        | Affected Parameters                                                                 | Evaluation Metrics                                      |
+|---|-----------------------------------|-------------------------------------------------------------------------------------|---------------------------------------------------------|
+| 1 | Number of Creatures               | `creature_num` (default: 50)                                                        | Food collected, survival rate, time to extinction       |
+| 2 | Number of Food Clusters           | `cluster_num` (default: 12)                                                         | Foraging efficiency, time to food depletion, agent distribution |
+| 3 | Cluster Spread                    | `cluster_spread`                                                                    | Food spatial distribution effect on foraging and survival |
+| 4 | Food Distance from Nest           | `food_distance_min`                                                                 | Energy spent, survival, food collection                 |
+| 5 | Energy Parameters                 | `energy_max`, `energy_drain_base`, `energy_drain_move`, `min_energy_to_forage`      | Agent lifespan, foraging                                |
+| 6 | Temperature Parameters            | `temperature_critical`, `heat_rate`, `cool_rate`                                    | Agent mortality, foraging cycles                        |
+| 7 | Pheromone Parameters              | `pheromone_deposit`, `evaporation_rate`                                             | Foraging efficiency, path formation                     |
+| 8 | Exploration and Movement Biases   | `exploration_weight`, `momentum_weight`, `outward_weight`                           | Resource discovery and exploitation                     |
+| 9 | Grid Size                         | `width`, `height` (default: 60x60)                                                  | Agent density, foraging, survival                       | -->
 
-4. **Food Distance from Nest**
-   - Affected parameters: `food_distance_min` 
-   - Evaluation: Impact on energy spent, survival, and food collection
-
-5. **Energy Parameters**
-   - Affected parameters: `energy_max`, `energy_drain_base`, `energy_drain_move`, `min_energy_to_forage`
-   - Evaluation: How energy constraints affect agent lifespan and foraging
-
-6. **Temperature Parameters**
-   - Affected parameters: `temperature_critical`, `heat_rate`, `cool_rate`
-   - Evaluation: Impact on agent mortality and foraging cycles
-
-7. **Pheromone Parameters**
-   - Affected parameters: `pheromone_deposit`, `evaporation_rate`
-   - Evaluation: How communication affects foraging efficiency and path formation
-
-8. **Exploration and Movement Biases**
-   - Affected parameters: `exploration_weight`, `momentum_weight`, `outward_weight`
-   - Evaluation: How agent movement strategies affect resource discovery and exploitation
-
-9. **Grid Size**
-   - Affected parameters: `width` and `height` (default: 60x60)
-   - Evaluation: Effects on agent density, foraging, and survival
