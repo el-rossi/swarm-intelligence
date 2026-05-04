@@ -57,14 +57,16 @@ class SwarmModel(Model):
         self.dead_creatures: int = 0
         self.datacollector = DataCollector(
             model_reporters={
-                "Total Pheromone":  lambda m: m.get_total_pheromone(),
-                "Average Energy":   lambda m: m.get_average_energy(),
-                "Food Collected":   lambda m: m.food_collected,
-                "Dead":             lambda m: m.dead_creatures,
-                "Resting":          lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
-                "Foraging":         lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == FORAGING),
-                "Returning Loaded": lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_LOADED),
-                "Returning Empty":  lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_EMPTY)
+                "Food Collected Grid":  lambda m: m.get_food_collected_grid(),
+                "Pheromone Grid":       lambda m: m.get_pheromone_grid(),
+                "Total Pheromone":      lambda m: m.get_total_pheromone(),
+                "Average Energy":       lambda m: m.get_average_energy(),
+                "Food Collected":       lambda m: m.food_collected,
+                "Dead":                 lambda m: m.dead_creatures,
+                "Resting":              lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RESTING),
+                "Foraging":             lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == FORAGING),
+                "Returning Loaded":     lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_LOADED),
+                "Returning Empty":      lambda m: sum(1 for a in m.agents_by_type[CreatureAgent] if a.alive and a.state == RETURNING_EMPTY)
             }
         )
 
@@ -138,7 +140,27 @@ class SwarmModel(Model):
             if isinstance(obj, cell_agent):
                 return obj
         return None
-
+    
+    def get_pheromone_grid(self):
+        width, height = self.grid.width, self.grid.height
+        grid = np.zeros((width, height))
+        for x in range(width):
+            for y in range(height):
+                ca = self._get_cell_agent(self.grid[x, y])
+                if ca:
+                    grid[x, y] = ca.pheromone
+        return grid.tolist()
+    
+    def get_food_collected_grid(self):
+        width, height = self.grid.width, self.grid.height
+        grid = np.zeros((width, height))
+        for x in range(width):
+            for y in range(height):
+                ca = self._get_cell_agent(self.grid[x, y])
+                if ca:
+                    grid[x, y] = ca.food_collected
+        return grid.tolist()
+    
     def get_average_energy(self):
         agents = [a for a in self.agents_by_type[CreatureAgent] if a.alive]
         if not agents:

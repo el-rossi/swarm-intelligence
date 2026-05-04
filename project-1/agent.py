@@ -130,6 +130,7 @@ class CreatureAgent(CellAgent):
         if food_ca is not None:
             # Collect 1 unit of food and return to nest
             food_ca.food = max(0.0, food_ca.food - 1.0)
+            food_ca.food_collected += 1.0
             self.model.food_collected += 1.0
             self.estimated_richness = food_ca.food
             self.state = RETURNING_LOADED
