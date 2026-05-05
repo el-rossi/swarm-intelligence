@@ -16,5 +16,6 @@ scipy==1.17.1
 six==1.17.0
 tqdm==4.67.3
 tzdata==2025.3
+
 starlette<0.37
 altair==5.3.0

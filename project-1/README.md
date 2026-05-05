@@ -20,6 +20,31 @@ This project implements a grid-based agent-based simulation of swarm intelligenc
 - Energy and temperature constraints force agents to rest and can lead to death if not managed.
 - The simulation ends when all agents are dead.
 
+## Analysis
+
+The simulation data was used to analyze the collective behavior and performance of the swarms. These visualizations provide insights into agent dynamics, resource utilization, and spatial patterns over time.
+
+### Plots
+
+**States**  
+A stacked plot showing the number of agents in each state at every simulation step. It reveals how the swarm’s activity evolves, highlighting periods of foraging, rest and mortality.
+
+**Energy**  
+A line plot of the average energy of all living agents at each step. It indicates the overall health of the swarm.
+
+**Food**  
+A line plot tracking the cumulative amount of food collected by all agents over time. It measures the swarm’s foraging efficiency.
+
+**Pheromone**  
+A line plot showing the total amount of pheromone present in the environment at each step. It visualizes the dynamics of pheromone deposition and evaporation, which are key to collective pathfinding and communication.
+
+### Heatmaps
+
+**Food**  
+A spatial heatmap showing the total amount of food collected from each cell over the course of the simulation. It identifies the spatial reach of the swarm’s foraging activity.
+
+**Pheromone**  
+A spatial heatmap representing the sum of all pheromone deposited in each cell throughout the simulation. It highlights frequently used paths and collective trail formation, revealing the swarm’s preferred routes between nest and food sources.
 
 ## Experiments
 
@@ -32,18 +57,4 @@ This project implements a grid-based agent-based simulation of swarm intelligenc
 | 5 | Pheromone Parameters              | `pheromone_deposit`, `evaporation_rate`                                             | Foraging efficiency, path formation                     |
 | 6 | Exploration and Movement Biases   | `exploration_weight`, ~~`momentum_weight`~~, ~~`outward_weight`~~                   | Resource discovery and exploitation                     |
 | 7 | Grid Size                         | `width`, `height`                                                                   | Agent density, foraging, survival                       |
-
-
-<!-- 
-| # | Experiment                        | Affected Parameters                                                                 | Evaluation Metrics                                      |
-|---|-----------------------------------|-------------------------------------------------------------------------------------|---------------------------------------------------------|
-| 1 | Number of Creatures               | `creature_num` (default: 50)                                                        | Food collected, survival rate, time to extinction       |
-| 2 | Number of Food Clusters           | `cluster_num` (default: 12)                                                         | Foraging efficiency, time to food depletion, agent distribution |
-| 3 | Cluster Spread                    | `cluster_spread`                                                                    | Food spatial distribution effect on foraging and survival |
-| 4 | Food Distance from Nest           | `food_distance_min`                                                                 | Energy spent, survival, food collection                 |
-| 5 | Energy Parameters                 | `energy_max`, `energy_drain_base`, `energy_drain_move`, `min_energy_to_forage`      | Agent lifespan, foraging                                |
-| 6 | Temperature Parameters            | `temperature_critical`, `heat_rate`, `cool_rate`                                    | Agent mortality, foraging cycles                        |
-| 7 | Pheromone Parameters              | `pheromone_deposit`, `evaporation_rate`                                             | Foraging efficiency, path formation                     |
-| 8 | Exploration and Movement Biases   | `exploration_weight`, `momentum_weight`, `outward_weight`                           | Resource discovery and exploitation                     |
-| 9 | Grid Size                         | `width`, `height` (default: 60x60)                                                  | Agent density, foraging, survival                       | -->
 
