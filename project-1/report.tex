@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+
+\usepackage{graphicx}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\title{Swarm Intelligence - Project 1}
+\author{Elena Rossi, Bennet Allryn Babu}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+%\textbf{Project description}
+
+This project implements a swarm intelligence simulation inspired by ant foraging behaviour. A group of agents operates in a grid environment where the objective is to locate food and transport it back to a central nest.
+
+The system is decentralized, meaning there is no global control. Each agent follows simple local rules, and coordination emerges through indirect communication using pheromones. When an agent discovers food, it returns to the nest while depositing pheromones, creating a trail that can be followed by other agents. Over time, this leads to the formation of efficient paths between the nest and food sources.
+
+In addition to foraging, the model incorporates energy and temperature constraints. Agents consume energy while moving and accumulate heat when outside the nest. If the energy level drops below a threshold or temperature exceeds a critical value, the agent dies. These constraints introduce a trade-off between exploration, efficiency, and survival.
+
+%\textbf{Tools used}
+
+\section{Implementation}
+
+The simulation is implemented in Python 3.12 using the Mesa 3.5.1 framework for agent-based modeling and Solara for interactive visualization. Mesa handles agent behavior, environment updates, and scheduling, while Solara is used to display the grid and performance metrics in a web interface. Supporting libraries such as NumPy and Matplotlib are used for numerical operations and plotting.
+
+\textbf{Structure}
+
+The system is composed of three main components: the environment, the agents, and the data collection/visualization layer.
+
+The environment is represented as a two-dimensional grid. Each cell can store food, pheromone values, or represent the nest. Food is distributed in clusters with a minimum distance from the nest to ensure that agents must explore the environment before exploiting resources.
+
+Agents follow a finite-state model with four states: \textit{resting}, \textit{foraging}, \textit{returning loaded} and \textit{returning empty}.
+
+During the \textit{foraging} state, agents move based on a combination of factors including pheromone intensity, directional momentum, outward bias from the nest, and random exploration. This combination allows both exploration of new areas and exploitation of known food sources.
+
+When an agent finds food, it switches to the \textit{returning loaded} state and moves toward the nest while depositing pheromones along its path. These pheromones act as indirect communication signals that guide other agents. Pheromone evaporation is applied at each step to prevent outdated paths from persisting indefinitely, allowing the system to adapt dynamically.
+
+Energy and temperature are continuously updated. Agents lose energy due to movement and baseline consumption, while temperature increases when outside the nest and decreases in the \textit{resting} state. If constraints are violated, the agent is removed from the system.
+
+\textbf{Issues}
+
+%The first issue we encountered during implementation was related to stopping the simulation. Setting \texttt{running = False} did not immediately terminate execution, and the model continued for several additional steps. This behaviour appears to be linked to the interaction between the simulation loop and the visualization layer.
+
+The major issue we encountered during implementation was layout handling in SolaraViz. Displaying charts together with the grid caused overlapping components and distorted layouts. We solved this spacing issue by adding an empty Solara component under the grid.
+
+We also had some problems implementing the heatcharts inside the Solara interface: the charts rendered when loading the page, but did not update during execution. Since we could not solve the problem through SolaraViz, we decided to implement the heatmaps separately in a Jupyter notebook. %  that retrieves the data gathered during the last simulation
+
+\section{Analysis}
+The simulation data was used to analyze the collective behavior and performance of the swarms. These visualizations provide insights into agent dynamics and spatial patterns over time.
+
+\textbf{Plots}
+\begin{itemize}
+    \item \textbf{States}: A stacked plot showing the number of agents in each state at every simulation step. It reveals how the swarm’s activity evolves, highlighting periods of foraging, rest and mortality.
+    \item \textbf{Energy}: A line plot of the average energy of all living agents at each step. It indicates the overall health of the swarm.
+    \item \textbf{Food}: A line plot tracking the cumulative amount of food collected by all agents over time. It measures the swarm’s foraging efficiency.
+    \item \textbf{Pheromone}: A line plot showing the total amount of pheromone present in the environment at each step. It visualizes the dynamics of pheromone deposition and evaporation, which are key to collective pathfinding and communication.
+\end{itemize}
+
+\textbf{Heatmaps}
+\begin{itemize}
+    \item \textbf{Food}: A spatial heatmap showing the total amount of food collected from each cell over the course of the simulation. It identifies the spatial reach of the swarm’s foraging activity.
+    \item \textbf{Pheromone}: A spatial heatmap representing the sum of all pheromone deposited in each cell throughout the simulation. It highlights frequently used paths and collective trail formation, revealing the swarm’s preferred routes between nest and food sources.
+\end{itemize}
+
+\section{Experiments}
+
+Due to space constraints, we focus on a subset of experiments that directly reflect the core behaviour of the system.
+
+\begin{itemize}
+    \item \textbf{Number of Creatures}: Evaluates how swarm size influences resource collection and survival.
+    
+    \item \textbf{Heat Rate}: Analyzes how environmental stress affects agent behaviour, survival, and efficiency.
+    
+    \item \textbf{Pheromone Parameters}: Studies the effect of pheromone deposit and evaporation on coordination and path formation.
+    
+    \item \textbf{Food Distribution}: Compares clustered versus dispersed food layouts and their impact on swarm efficiency.
+\end{itemize}
+
+%Each experiment focuses on understanding how a single parameter influences the balance between exploration, exploitation, and survival.
+
+\section{Results and observations}
+
+The results show that pheromone-based communication significantly improves coordination. Agents are able to form stable and efficient paths between the nest and food sources, leading to faster and more consistent food collection.
+
+Without sufficient pheromone influence, agents rely more on random exploration, which reduces efficiency and increases the time required to locate food.
+
+Increasing the heat rate introduces a strong constraint on behaviour. Agents are forced to return to the nest more frequently to avoid overheating, which reduces exploration time and leads to lower overall performance. In extreme cases, this also increases agent mortality.
+
+Food distribution also plays a critical role. Clustered food allows agents to exploit resources efficiently through reinforced pheromone trails, while scattered food increases the need for exploration and reduces overall efficiency.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{l l l l}
+\toprule
+\textbf{Experiment} & \textbf{Expected} & \textbf{Observed} & \textbf{Insight} \\
+\midrule
+High pheromone & Strong path formation & Fast food collection & Improves coordination \\
+Low pheromone & Random exploration & Slow convergence & Reduces efficiency \\
+High heat rate & Frequent nest returns & Lower survival & Strong environmental constraint \\
+Clustered food & Local exploitation & Faster convergence & Resource structure matters \\
+\bottomrule
+\end{tabular}
+\caption{Summary of experimental results}
+\end{table}
+
+Overall, the system demonstrates emergent behaviour, where simple local rules produce coordinated global patterns without centralized control.
+
+\section{Conclusions}
+
+This project demonstrates how swarm intelligence emerges from decentralized agent interactions. Pheromone-based communication enables efficient coordination, allowing agents to collectively solve the foraging problem.
+
+At the same time, energy and temperature constraints introduce realistic limitations that significantly influence behaviour and performance. These constraints highlight the importance of balancing exploration with survival.
+
+The results confirm that while simple rules can generate complex behaviour, system performance is highly sensitive to parameters such as pheromone dynamics, environmental stress, and resource distribution.
+    
+\end{document}
