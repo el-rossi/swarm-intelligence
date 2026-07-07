@@ -1,0 +1,42 @@
+PROTO CustomEpuck [
+  field SFVec3f translation 0 0 0
+  field SFRotation rotation 0 0 1 0
+  field SFString name "CustomEpuck"
+  field SFBool useCustomColor FALSE
+  field SFColor bodyColor 0.5 0.5 0.5
+  field SFColor eyeColor 1 1 1
+  field SFFloat sensorRange 0.1
+  field SFBool enableCommunication TRUE
+
+  DEF ROBOT Robot {
+    translation IS translation
+    rotation IS rotation
+    children [
+      Shape {
+        appearance Appearance {
+          material Material {
+            diffuseColor IS bodyColor
+          }
+        }
+        geometry Sphere {
+          radius 0.1
+        }
+      }
+      Transform {
+        translation 0 0.1 0
+        children [
+          Shape {
+            appearance Appearance {
+              material Material {
+                diffuseColor IS eyeColor
+              }
+            }
+            geometry Sphere {
+              radius 0.02
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
