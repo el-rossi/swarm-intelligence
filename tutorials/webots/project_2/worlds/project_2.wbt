@@ -1,0 +1,57 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.11314293130487597 -0.04922791337927464 -0.992358448162791 3.9567496354252913
+  position 3.9485897301498056 -4.12737612250148 2.086603082536671
+}
+TexturedBackground {
+  texture "empty_office"
+}
+TexturedBackgroundLight {
+  texture "empty_office"
+  castShadows FALSE
+}
+PointLight {
+  attenuation 0 0 1
+  color 1 0.9 0.7
+  intensity 2
+  location 0.9 0 0.3
+  radius 5
+  castShadows TRUE
+}
+RectangleArena {
+  name "Arena"
+  floorSize 3 2
+  wallHeight 0.3
+}
+Wall {
+  translation 0 -0.7915 0
+  rotation 1 0 0 4.6928e-06
+  name "Back"
+  size 0.05 0.417 0.3
+}
+Wall {
+  translation 0 0.7925 0
+  rotation 1 0 0 4.6928e-06
+  name "Front"
+  size 0.05 0.417 0.3
+}
+Wall {
+  translation 0 0.2645 0
+  rotation 1 0 0 4.6928e-06
+  name "Central Front"
+  size 0.05 0.417 0.3
+}
+Wall {
+  translation 0 -0.2635 0
+  rotation 1 0 0 4.6928e-06
+  name "Central Back"
+  size 0.05 0.417 0.3
+}
