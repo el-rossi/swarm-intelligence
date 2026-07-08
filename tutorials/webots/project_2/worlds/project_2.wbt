@@ -4,12 +4,13 @@ EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/project
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
 EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
 
 WorldInfo {
 }
 Viewpoint {
-  orientation 0.11314293130487597 -0.04922791337927464 -0.992358448162791 3.9567496354252913
-  position 3.9485897301498056 -4.12737612250148 2.086603082536671
+  orientation 0.10795014400898555 -0.9736899798637065 -0.20068529971438948 5.273726310843248
+  position -3.6218934245644343 -0.743533264272092 5.6596555028518445
 }
 TexturedBackground {
   texture "empty_office"
@@ -23,7 +24,6 @@ PointLight {
   color 1 0.9 0.7
   intensity 2
   location 0.9 0 0.3
-  radius 5
   castShadows TRUE
 }
 RectangleArena {
@@ -54,4 +54,58 @@ Wall {
   rotation 1 0 0 4.6928e-06
   name "Central Back"
   size 0.05 0.417 0.3
+}
+E-puck {
+  translation -1.19272 0.705796 -3.55271e-15
+  rotation 0 0 1 1.309
+  name "Robot 1"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -0.958392 -0.406575 0.1
+  rotation 0 0 -1 -1.3089953071795861
+  name "Robot 2"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -1.31117 0.225672 0.1
+  rotation 0 0 1 -1.5707953071795862
+  name "Robot 3"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -0.452745 0.713098 0.2
+  rotation 0 0 1 -1.5707953071795862
+  name "Robot 4"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -1.30698 -0.673914 0.2
+  rotation 0 0 1 0.261799
+  name "Robot 5"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -0.921306 0.348372 0.3
+  rotation 0 0 1 0.261799
+  name "Robot 6"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+}
+E-puck {
+  translation -0.484618 -0.0157802 -3.0731e-13
+  rotation 0 0 1 0.785398
+  name "Robot 7"
+  controller "epuck_cross_wall"
+}
+E-puck {
+  translation -0.546891 -0.742462 0.1
+  rotation 0 0 1 0.785398
+  name "Robot 8"
+  controller "epuck_cross_wall"
 }
