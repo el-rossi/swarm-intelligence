@@ -22,9 +22,8 @@ TexturedBackgroundLight {
 PointLight {
   attenuation 0 0 1
   color 1 0.9 0.7
-  intensity 2
+  intensity 4
   location 0.9 0 0.3
-  castShadows TRUE
 }
 RectangleArena {
   name "Arena"
@@ -61,6 +60,7 @@ E-puck {
   name "Robot 1"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -0.958392 -0.406575 0.1
@@ -68,6 +68,7 @@ E-puck {
   name "Robot 2"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -1.31117 0.225672 0.1
@@ -75,6 +76,7 @@ E-puck {
   name "Robot 3"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -0.452745 0.713098 0.2
@@ -82,6 +84,7 @@ E-puck {
   name "Robot 4"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -1.30698 -0.673914 0.2
@@ -89,6 +92,7 @@ E-puck {
   name "Robot 5"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -0.921306 0.348372 0.3
@@ -96,16 +100,21 @@ E-puck {
   name "Robot 6"
   controller "epuck_cross_wall"
   emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -0.484618 -0.0157802 -3.0731e-13
   rotation 0 0 1 0.785398
   name "Robot 7"
   controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
 }
 E-puck {
   translation -0.546891 -0.742462 0.1
   rotation 0 0 1 0.785398
   name "Robot 8"
   controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
 }
