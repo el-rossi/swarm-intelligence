@@ -12,6 +12,7 @@ GAP_THRESHOLD = 140.0
 LIGHT_THRESHOLD_RATIO = 0.12
 LIGHT_GAP_THRESHOLD = 0.12
 LIGHT_STEER_GAIN = 0.05
+ARRIVAL_LIGHT_THRESHOLD = 0.35
 
 COMM_CHANNEL = 7
 
@@ -65,6 +66,10 @@ wall_side = 1 if robot_id % 2 == 0 else -1
 state = EXPLORE
 stuck_steps = 0
 crossing_steps = 0
+crossing_blocked_steps = 0
+CROSSING_BLOCKED_LIMIT = int(1000 / timestep)
+phototaxis_stuck_steps = 0
+PHOTOTAXIS_STUCK_LIMIT = int(2000 / timestep)
 STUCK_STEP_LIMIT = int(3000 / timestep)
 
 # Main control loop: read sensors, process messages and update behavior
@@ -127,8 +132,8 @@ while robot.step(timestep) != -1:
         other_side_reading = right_side if wall_side > 0 else left_side
 
         if front_blocked:
-            left_speed = -0.25 * MAX_SPEED - 0.2 * MAX_SPEED * wall_side
-            right_speed = -0.25 * MAX_SPEED + 0.2 * MAX_SPEED * wall_side
+            left_speed = -0.25 * MAX_SPEED + 0.2 * MAX_SPEED * wall_side
+            right_speed = -0.25 * MAX_SPEED - 0.2 * MAX_SPEED * wall_side
             stuck_steps += 1
             if stuck_steps > STUCK_STEP_LIMIT:
                 print(f"[{robot.getTime():.3f}s] {name}: {state} -> EXPLORE: Stuck too long")
@@ -156,14 +161,15 @@ while robot.step(timestep) != -1:
             elif left_light > right_light + 0.03:
                 correction -= LIGHT_STEER_GAIN * MAX_SPEED
 
-            left_speed = base - correction * wall_side
-            right_speed = base + correction * wall_side
+            left_speed = base + correction * wall_side
+            right_speed = base - correction * wall_side
 
     # Announce that a hole has been found
     elif state == RECRUIT:
         emitter.send(f"HOLE:{name}".encode("utf-8"))
         print(f"[{robot.getTime():.3f}s] {name}: {state} -> CROSSING")
         crossing_steps = 0
+        crossing_blocked_steps = 0
         state = CROSSING
 
     # Move toward the source of the recruitment message
@@ -186,39 +192,70 @@ while robot.step(timestep) != -1:
     elif state == CROSSING:
         crossing_steps += 1
 
-        if left_light > right_light + 0.03:
-            left_speed = 0.45 * MAX_SPEED
-            right_speed = 0.7 * MAX_SPEED
-        elif right_light > left_light + 0.03:
-            left_speed = 0.7 * MAX_SPEED
-            right_speed = 0.45 * MAX_SPEED
-        elif front > OBSTACLE_THRESHOLD:
-            left_speed = -0.2 * MAX_SPEED
-            right_speed = 0.1 * MAX_SPEED
+        if front > OBSTACLE_THRESHOLD:
+            crossing_blocked_steps += 1
+            if crossing_blocked_steps > CROSSING_BLOCKED_LIMIT:
+                # randomized retreat to break symmetry with whoever is blocking us
+                turn_bias = random.choice([-1, 1])
+                left_speed = -0.2 * MAX_SPEED + turn_bias * 0.15 * MAX_SPEED
+                right_speed = -0.2 * MAX_SPEED - turn_bias * 0.15 * MAX_SPEED
+                if crossing_blocked_steps > CROSSING_BLOCKED_LIMIT + int(500 / timestep):
+                    print(f"[{robot.getTime():.3f}s] {name}: {state} -> EXPLORE: Congestion at hole, retreating")
+                    crossing_blocked_steps = 0
+                    state = EXPLORE
+            else:
+                left_speed = -0.2 * MAX_SPEED
+                right_speed = 0.1 * MAX_SPEED
         else:
-            left_speed = 0.6 * MAX_SPEED
-            right_speed = 0.6 * MAX_SPEED
+            crossing_blocked_steps = 0
 
-        if max(left_light, right_light) > LIGHT_GAP_THRESHOLD or crossing_steps > 80:
-            print(f"[{robot.getTime():.3f}s] {name}: {state} -> PHOTOTAXIS: Light detected or crossing timeout")
-            state = PHOTOTAXIS
+            if left_light > right_light + 0.03:
+                left_speed = 0.45 * MAX_SPEED
+                right_speed = 0.7 * MAX_SPEED
+            elif right_light > left_light + 0.03:
+                left_speed = 0.7 * MAX_SPEED
+                right_speed = 0.45 * MAX_SPEED
+            elif front > OBSTACLE_THRESHOLD:
+                left_speed = -0.2 * MAX_SPEED
+                right_speed = 0.1 * MAX_SPEED
+            else:
+                left_speed = 0.6 * MAX_SPEED
+                right_speed = 0.6 * MAX_SPEED
+
+            if max(left_light, right_light) > ARRIVAL_LIGHT_THRESHOLD or crossing_steps > 80:
+                print(f"[{robot.getTime():.3f}s] {name}: {state} -> PHOTOTAXIS: Light detected or crossing timeout")
+                state = PHOTOTAXIS
 
     # Steer toward the light source
     elif state == PHOTOTAXIS:
-        reference_light_value = (ls_values[0] + ls_values[7]) / 2.0
-        right_light_value = sum(ls_values[0:4]) / 4.0
-        left_light_value = sum(ls_values[4:8]) / 4.0
-        threshold = LIGHT_THRESHOLD_RATIO * reference_light_value
-
-        if reference_light_value - left_light_value > threshold:
-            left_speed = -0.25 * MAX_SPEED
-            right_speed = 0.5 * MAX_SPEED
-        elif reference_light_value - right_light_value > threshold:
-            left_speed = 0.5 * MAX_SPEED
-            right_speed = -0.25 * MAX_SPEED
+        if front_blocked:
+            phototaxis_stuck_steps += 1
         else:
-            left_speed = 0.5 * MAX_SPEED
-            right_speed = 0.5 * MAX_SPEED
+            phototaxis_stuck_steps = 0
+
+        if phototaxis_stuck_steps > PHOTOTAXIS_STUCK_LIMIT:
+            print(f"[{robot.getTime():.3f}s] {name}: {state} -> WALL_FOLLOW: Stuck against wall, retrying crossing")
+            phototaxis_stuck_steps = 0
+            state = WALL_FOLLOW
+        elif front_blocked:
+            # back off instead of blindly steering toward light into the wall
+            left_speed = -0.25 * MAX_SPEED
+            right_speed = 0.1 * MAX_SPEED
+        else:
+            reference_light_value = (ls_values[0] + ls_values[7]) / 2.0
+            right_light_value = sum(ls_values[0:4]) / 4.0
+            left_light_value = sum(ls_values[4:8]) / 4.0
+            threshold = LIGHT_THRESHOLD_RATIO * reference_light_value
+
+            if reference_light_value - left_light_value > threshold:
+                left_speed = -0.25 * MAX_SPEED
+                right_speed = 0.5 * MAX_SPEED
+            elif reference_light_value - right_light_value > threshold:
+                left_speed = 0.5 * MAX_SPEED
+                right_speed = -0.25 * MAX_SPEED
+            else:
+                left_speed = 0.5 * MAX_SPEED
+                right_speed = 0.5 * MAX_SPEED
 
     # Clamp the wheel speeds and apply them to the motors
     left_speed = max(-MAX_SPEED, min(MAX_SPEED, left_speed))
