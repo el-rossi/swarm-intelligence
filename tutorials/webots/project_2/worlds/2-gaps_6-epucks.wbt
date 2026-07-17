@@ -1,0 +1,110 @@
+#VRML_SIM R2025a utf8
+
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackground.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/backgrounds/protos/TexturedBackgroundLight.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/floors/protos/RectangleArena.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/objects/apartment_structure/protos/Wall.proto"
+EXTERNPROTO "https://raw.githubusercontent.com/cyberbotics/webots/R2025a/projects/robots/gctronic/e-puck/protos/E-puck.proto"
+
+WorldInfo {
+}
+Viewpoint {
+  orientation 0.03531773083293649 -0.9968110637957945 -0.07155669768168837 5.363598135108762
+  position -4.174100460634542 -0.2823537193574738 5.408937307188325
+}
+TexturedBackground {
+  texture "empty_office"
+}
+TexturedBackgroundLight {
+  texture "empty_office"
+  castShadows FALSE
+}
+PointLight {
+  attenuation 0 0 1
+  color 1 0.9 0.7
+  intensity 3
+  location 0.9 0 0.3
+  castShadows TRUE
+}
+RectangleArena {
+  name "Arena"
+  floorSize 3 2
+  wallHeight 0.3
+}
+Wall {
+  translation 0 -0.7915 0
+  rotation 1 0 0 4.6928e-06
+  name "Back"
+  size 0.05 0.417 0.3
+}
+Wall {
+  translation 0 0.7925 0
+  rotation 1 0 0 4.6928e-06
+  name "Front"
+  size 0.05 0.417 0.3
+}
+Wall {
+  translation 0 0.561 0
+  rotation 1 0 0 4.6928e-06
+  name "Central Top"
+  size 0.05 0.45 0.3
+}
+Wall {
+  rotation 1 0 0 4.6928e-06
+  name "Central Middle"
+  size 0.05 0.45 0.3
+}
+Wall {
+  translation 0 -0.561 0
+  rotation 1 0 0 4.6928e-06
+  name "Central Bottom"
+  size 0.05 0.45 0.3
+}
+E-puck {
+  translation -1.19272 0.705796 -3.55271e-15
+  rotation 0 0 1 1.309
+  name "Robot 1"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}
+E-puck {
+  translation -0.831103 -0.573848 0.1
+  rotation 0 0 -1 -1.3089953071795861
+  name "Robot 2"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}
+E-puck {
+  translation -1.26139 0.207267 0.1
+  rotation 0 0 1 -1.5707953071795862
+  name "Robot 3"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}
+E-puck {
+  translation -1.05711 -0.0782901 0.2
+  rotation 0 0 1 -1.5707953071795862
+  name "Robot 4"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}
+E-puck {
+  translation -1.30698 -0.673914 0.2
+  rotation 0 0 1 0.261799
+  name "Robot 5"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}
+E-puck {
+  translation -1.01338 0.603974 0.3
+  rotation 0 0 1 0.261799
+  name "Robot 6"
+  controller "epuck_cross_wall"
+  emitter_channel 7
+  receiver_channel 7
+}

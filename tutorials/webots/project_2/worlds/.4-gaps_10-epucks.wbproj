@@ -1,0 +1,19 @@
+Webots Project File version R2025a
+perspectives: 000000ff00000000fd00000002000000010000034c000006ecfc0200000001fb0000001400540065007800740045006400690074006f0072010000001d000006ec0000009100ffffff0000000300000f00000000defc0100000001fb0000001a0043006f006e0073006f006c00650041006c006c0041006c006c010000000000000f000000006900ffffff00000bb2000006ec00000001000000020000000100000008fc00000000
+simulationViewPerspectives: 000000ff00000001000000020000013e00000ca40100000002010000000100
+sceneTreePerspectives: 000000ff000000010000000300000026000000c0000000fa0100000002010000000200
+maximizedDockId: -1
+centralWidgetVisible: 1
+orthographicViewHeight: 1
+textFiles: 0 "controllers/epuck_cross_wall/epuck_cross_wall.py"
+consoles: Console:All:All
+renderingDevicePerspectives: Robot 10:camera;1;1;0;0
+renderingDevicePerspectives: Robot 1:camera;1;1;0;0
+renderingDevicePerspectives: Robot 2:camera;1;1;0;0
+renderingDevicePerspectives: Robot 3:camera;1;1;0;0
+renderingDevicePerspectives: Robot 4:camera;1;1;0;0
+renderingDevicePerspectives: Robot 5:camera;1;1;0;0
+renderingDevicePerspectives: Robot 6:camera;1;1;0;0
+renderingDevicePerspectives: Robot 7:camera;1;1;0;0
+renderingDevicePerspectives: Robot 8:camera;1;1;0;0
+renderingDevicePerspectives: Robot 9:camera;1;1;0;0
